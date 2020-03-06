@@ -33,7 +33,7 @@ public class SittingController {
 	DisponibilityRepository dispoRepo;
 
 	@PostMapping
-	public void testOffset(@RequestBody DisponibilityDTO dispo) {
+	public String testOffset(@RequestBody DisponibilityDTO dispo) {
 		// OffsetDateTime ldt = OffsetDateTime.of(odd.getYear(), odd.getMonth(), odd.getDayOfMonth(), 0, 0, 0, 0, zos);
 		DateTimeFormatter inputFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
 		// DateTimeFormatter outputFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SS", Locale.FRANCE);
@@ -44,6 +44,7 @@ public class SittingController {
 		Disponibility d = Disponibility.of(dispo);
 		log.info("Dispo construit = {}", d);
 		dispoRepo.save(d);
+		return "dispo.Beg = " + dispo.getBeggining().toString() + " || beg.Tostring = " + beg.toString() + "|| d.toString" + d.toString();
 	}
 	
 	@GetMapping
