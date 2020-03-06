@@ -1,13 +1,19 @@
 package com.example.animalsitter.domain;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.UUID;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 
+import com.example.animalsitter.dto.DisponibilityDTO;
+
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -15,17 +21,23 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
+@Builder
 public class Disponibility {
 
 	@Id
 	@GeneratedValue
 	UUID id;
 	
-	LocalDate shiftBeggining;
+	OffsetDateTime shiftBeggining;
 	
-	LocalDate shiftEnd;
+	OffsetDateTime shiftEnd;
 	
-	boolean available;
 	
+	public static Disponibility of(DisponibilityDTO dispo) {
+		DateTimeFormatter inputFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+		OffsetDateTime beg = LocalDateTime.parse(dispo.getBeggining(), inputFormatter).atZone(ZoneId.of("Europe/Paris")).toOffsetDateTime();
+		OffsetDateTime end = LocalDateTime.parse(dispo.getEnd(), inputFormatter).atZone(ZoneId.of("Europe/Paris")).toOffsetDateTime();
+		return Disponibility.builder().shiftBeggining(beg).shiftEnd(end).build();
+	}
 	
 }

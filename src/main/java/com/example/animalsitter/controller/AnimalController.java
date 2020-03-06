@@ -1,5 +1,6 @@
 package com.example.animalsitter.controller;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.animalsitter.domain.Animal;
+import com.example.animalsitter.domain.Sickness;
 import com.example.animalsitter.dto.AnimalDTO;
 import com.example.animalsitter.repository.Animalrepository;
 
@@ -37,7 +39,7 @@ public class AnimalController {
 	@PostMapping("/create")
 	public ResponseEntity<Animal> createAnimal(@RequestBody AnimalDTO animalDTO) {
 		log.info("HTTP Handling createAnimal");
-		Animal animal = Animal.builder().name(animalDTO.getName()).build();
+		Animal animal = Animal.builder().name(animalDTO.getName()).sicknesses(new ArrayList<Sickness>()).build();
 		return ResponseEntity.ok(animalRepo.save(animal));
 	}
 	
