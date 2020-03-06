@@ -38,8 +38,8 @@ public class SittingController {
 		DateTimeFormatter inputFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
 		// DateTimeFormatter outputFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SS", Locale.FRANCE);
 		// OffsetDateTime date =  OffsetDateTime.parse(odd.getLocal(), inputFormatter , ZoneId.);
-		OffsetDateTime beg = LocalDateTime.parse(dispo.getBeggining(), inputFormatter).atZone(ZoneId.of("Europe/Paris")).toOffsetDateTime();
-		OffsetDateTime end = LocalDateTime.parse(dispo.getEnd(), inputFormatter).atZone(ZoneId.of("Europe/Paris")).toOffsetDateTime();
+		OffsetDateTime beg = LocalDateTime.parse(dispo.getBeggining(), inputFormatter).atZone(ZoneId.of("Europe/Paris")).plusHours(1).toOffsetDateTime();
+		OffsetDateTime end = LocalDateTime.parse(dispo.getEnd(), inputFormatter).atZone(ZoneId.of("Europe/Paris")).plusHours(1).toOffsetDateTime();
 		log.info("beg = {}, end = {}", beg, end);
 		Disponibility d = Disponibility.of(dispo);
 		log.info("Dispo construit = {}", d);
