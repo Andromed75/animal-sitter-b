@@ -5,7 +5,8 @@ import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
-import java.util.UUID;
+import java.util.UUID;import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -49,7 +50,9 @@ public class SittingController {
 	
 	@GetMapping
 	public ResponseEntity<List<Disponibility>> getAllDispo() {
-		return ResponseEntity.ok(dispoRepo.findAll());
+		List<Disponibility> dispo = dispoRepo.findAll();
+		dispo.stream().forEach(x -> x.setShiftBeggining(x.getShiftBeggining().atZoneSameInstant(ZoneId.of("Europe/Paris")).toOffsetDateTime()));
+		return ResponseEntity.ok(dispo);
 	}
 	
 	@GetMapping("/test-date/{id}")
