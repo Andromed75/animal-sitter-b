@@ -4,17 +4,14 @@ import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
 
-import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
-import javax.persistence.OneToMany;
 
 import com.example.animalsitter.dto.DisponibilityDTO;
+import com.example.animalsitter.dto.IndispoDto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -26,7 +23,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Data
 @Builder
-public class Disponibility {
+public class Indisponibility {
 
 	@Id
 	@GeneratedValue
@@ -36,16 +33,11 @@ public class Disponibility {
 	
 	OffsetDateTime shiftEnd;
 	
-	@OneToMany(targetEntity = Indisponibility.class, cascade = CascadeType.ALL)
-	List<Indisponibility> indisponibility;
-	
-	
-	public static Disponibility of(DisponibilityDTO dispo) {
+	public static Indisponibility of(DisponibilityDTO dispo) {
 		DateTimeFormatter inputFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
 		OffsetDateTime beg = LocalDateTime.parse(dispo.getBeggining(), inputFormatter).atZone(ZoneId.of("Europe/Paris")).toOffsetDateTime();
 		OffsetDateTime end = LocalDateTime.parse(dispo.getEnd(), inputFormatter).atZone(ZoneId.of("Europe/Paris")).toOffsetDateTime();
-		Disponibility d = new Disponibility(null, beg, end, new ArrayList<Indisponibility>());
-		return d;
+		return Indisponibility.builder().shiftBeggining(beg).shiftEnd(end).build();
 	}
 	
 }
