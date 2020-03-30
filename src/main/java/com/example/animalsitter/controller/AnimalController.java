@@ -27,13 +27,13 @@ import lombok.extern.slf4j.Slf4j;
 @RestController
 @RequestMapping("api/animal/v1")
 @Slf4j 
-public class AnimalController {
+public class AnimalController { 
 
 	@Autowired
 	Animalrepository animalRepo;
 	
-	@PreAuthorize("hasRole('USER')")
 	@GetMapping("/findall")
+	@PreAuthorize("hasRole('USER')")
 	public ResponseEntity<List<Animal>> getAllAnimals() {
 		return ResponseEntity.ok(animalRepo.findAll());
 	}

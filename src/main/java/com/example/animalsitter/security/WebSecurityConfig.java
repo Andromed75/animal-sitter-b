@@ -59,8 +59,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 	protected void configure(HttpSecurity http) throws Exception {
 		http.cors().and().csrf().disable().exceptionHandling().authenticationEntryPoint(unauthorizedHandler).and()
 				.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
-				.authorizeRequests().antMatchers("/api/animal/v1/**", "/api/sitting/v1/**")
-				.permitAll().antMatchers("/api/animal/v1/**", "/api/sitting/v1/**")
+				.authorizeRequests().antMatchers( "/api/sitting/v1/**", "/api/v1/auth/**" )
+				.permitAll().antMatchers("/api/animal/v1/**")
 				.permitAll().anyRequest().authenticated();
 
 		http.addFilterBefore(authenticationJwtTokenFilter(), UsernamePasswordAuthenticationFilter.class);

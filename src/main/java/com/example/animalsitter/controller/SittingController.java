@@ -26,6 +26,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.example.animalsitter.domain.Animal;
 import com.example.animalsitter.domain.Disponibility;
 import com.example.animalsitter.domain.Indisponibility;
 import com.example.animalsitter.domain.Role;
@@ -183,59 +184,7 @@ public class SittingController {
 		return response;
 	}
 
-	@PostMapping("/create-user")
-	public ResponseEntity<?> createUser(@Valid @RequestBody UserDto UserDto) {
-
-		if (userRepository.existsByPseudo(UserDto.getPseudo())) {
-			return ResponseEntity
-					.badRequest()
-					.body("Username is already taken!");
-		}
-
-		if (userRepository.existsByEmail(UserDto.getEmail())) {
-			return ResponseEntity
-					.badRequest()
-					.body("Email is already in use !");
-		}
-
-		// Create new user's account
-		User user = new User(null, UserDto.getPseudo(), UserDto.getEmail(), encoder.encode(UserDto.getPassword()), null, null, null);
-
-//		Set<String> strRoles = UserDto.getRole();
-		Set<Role> roles = new HashSet<>();
-//
-//		if (strRoles == null) {
-			Role userRole = roleRepository.findByName(ERole.USER)
-					.orElseThrow(() -> new RuntimeException(ERROR_ROLE_IS_NOT_FOUND));
-			roles.add(userRole);
-//		} else {
-//			strRoles.forEach(role -> {
-//				switch (role) {
-//				case "admin":
-//					Role adminRole = roleRepository.findByName(ERole.ADMIN)
-//							.orElseThrow(() -> new RuntimeException(ERROR_ROLE_IS_NOT_FOUND));
-//					roles.add(adminRole);
-//
-//					break;
-//				case "mod":
-//					Role modRole = roleRepository.findByName(ERole.MODERATOR)
-//							.orElseThrow(() -> new RuntimeException(ERROR_ROLE_IS_NOT_FOUND));
-//					roles.add(modRole);
-//
-//					break;
-//				default:
-//					Role userRole = roleRepository.findByName(ERole.USER)
-//							.orElseThrow(() -> new RuntimeException(ERROR_ROLE_IS_NOT_FOUND));
-//					roles.add(userRole);
-//				}
-//			});
-//		}
-
-		user.setRoles(roles);
-		userRepository.save(user);
-
-		return ResponseEntity.ok(user);
-	}
+	
 
 	@PostMapping("/add-dispo/{id}")
 	public void addDisponibilityToUser(@RequestBody DisponibilityDTO dispo, @PathVariable("id") String id) {

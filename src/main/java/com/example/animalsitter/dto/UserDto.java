@@ -13,6 +13,4 @@ public class UserDto {
 	
 	String email;
 	
-	
-	
 }
