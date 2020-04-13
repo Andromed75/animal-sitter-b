@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.UUID;
 
 import javax.persistence.Entity;
@@ -12,6 +13,7 @@ import javax.persistence.Id;
 
 import com.example.animalsitter.dto.DisponibilityDTO;
 import com.example.animalsitter.dto.IndispoDto;
+import com.example.animalsitter.dto.request.StartAnEndWithUserId;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -38,6 +40,13 @@ public class Indisponibility {
 		OffsetDateTime beg = LocalDateTime.parse(dispo.getBeggining(), inputFormatter).atZone(ZoneId.of("Europe/Paris")).toOffsetDateTime();
 		OffsetDateTime end = LocalDateTime.parse(dispo.getEnd(), inputFormatter).atZone(ZoneId.of("Europe/Paris")).toOffsetDateTime();
 		return Indisponibility.builder().shiftBeggining(beg).shiftEnd(end).build();
+	}
+	
+	public static Indisponibility of(StartAnEndWithUserId dispo) {
+		DateTimeFormatter inputFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+		OffsetDateTime beg = LocalDateTime.parse(dispo.getDispoStart(), inputFormatter).atZone(ZoneId.of("Europe/Paris")).toOffsetDateTime();
+		OffsetDateTime end = LocalDateTime.parse(dispo.getDispoEnd(), inputFormatter).atZone(ZoneId.of("Europe/Paris")).toOffsetDateTime();
+		return new Indisponibility(null, beg, end);
 	}
 	
 }

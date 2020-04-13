@@ -15,6 +15,7 @@ import javax.persistence.Id;
 import javax.persistence.OneToMany;
 
 import com.example.animalsitter.dto.DisponibilityDTO;
+import com.example.animalsitter.dto.request.StartAnEndWithUserId;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -46,6 +47,13 @@ public class Disponibility {
 		OffsetDateTime end = LocalDateTime.parse(dispo.getEnd(), inputFormatter).atZone(ZoneId.of("Europe/Paris")).toOffsetDateTime();
 		Disponibility d = new Disponibility(null, beg, end, new ArrayList<Indisponibility>());
 		return d;
+	}
+	
+	public static Disponibility of(StartAnEndWithUserId dispo) {
+		DateTimeFormatter inputFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+		OffsetDateTime beg = LocalDateTime.parse(dispo.getDispoStart(), inputFormatter).atZone(ZoneId.of("Europe/Paris")).toOffsetDateTime();
+		OffsetDateTime end = LocalDateTime.parse(dispo.getDispoEnd(), inputFormatter).atZone(ZoneId.of("Europe/Paris")).toOffsetDateTime();
+		return new Disponibility(null, beg, end, new ArrayList<Indisponibility>());
 	}
 	
 }

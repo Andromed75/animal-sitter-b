@@ -23,7 +23,7 @@ public class User extends Admin{
 	
 	
 	
-	@OneToMany(targetEntity = Animal.class)
+	@OneToMany(targetEntity = Animal.class, cascade = CascadeType.ALL)
 	List<Animal> animals;
 	
 	@OneToMany(targetEntity = Disponibility.class, cascade = CascadeType.ALL)
@@ -31,7 +31,7 @@ public class User extends Admin{
 	
 
 	
-	public User(UUID id, String pseudo, String password, String email, List<Animal> animals, 	List<Disponibility> disponibility, Set<Role> roles ) {
+	public User(UUID id, String pseudo, String password, String email, List<Animal> animals, List<Disponibility> disponibility, Set<Role> roles ) {
 		super(id, pseudo, password, email, roles);
 		this.animals = animals;
 		this.disponibility = disponibility;

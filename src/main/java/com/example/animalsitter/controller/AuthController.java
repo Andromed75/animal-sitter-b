@@ -36,6 +36,9 @@ import com.example.animalsitter.repository.UserRepository;
 import com.example.animalsitter.security.jwt.JwtUtils;
 import com.example.animalsitter.security.service.UserDetailsImpl;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 @RestController
 @CrossOrigin
 @RequestMapping("/api/v1/auth")
@@ -69,6 +72,8 @@ public class AuthController {
 	
 	@PostMapping("/signin")
 	public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
+		log.info("HTTP HANDLING : authenticateUser with user : {}", loginRequest.getPassword());
+		
 
 		Authentication authentication = authenticationManager.authenticate(
 				new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));
@@ -90,15 +95,15 @@ public class AuthController {
 	}
 	
 	@PostMapping("/signup")
-	public ResponseEntity<?> createUser(@Valid @RequestBody UserDto UserDto) {
+	public ResponseEntity<?> createUser(@Valid @RequestBody UserDto userDto) {
 
-		if (userRepository.existsByPseudo(UserDto.getPseudo())) {
+		if (userRepository.existsByPseudo(userDto.getPseudo())) {
 			return ResponseEntity
 					.badRequest()
 					.body("Username is already taken!");
 		}
 
-		if (userRepository.existsByEmail(UserDto.getEmail())) {
+		if (userRepository.existsByEmail(userDto.getEmail())) {
 			return ResponseEntity
 					.badRequest()
 					.body("Email is already in use !");
@@ -107,7 +112,7 @@ public class AuthController {
 		Role userRole = roleRepository.findByName(ERole.ROLE_USER).orElseThrow(() -> new RuntimeException("ERROR ROLE IS NOT FOUND"));
 		Set<Role> roles = new HashSet<>();
 		roles.add(userRole);
-		User user = new User(null, UserDto.getPseudo(), encoder.encode(UserDto.getPassword()), UserDto.getEmail(), new ArrayList<Animal>(), new ArrayList<Disponibility>(), roles);
+		User user = new User(null, userDto.getPseudo(), encoder.encode(userDto.getPassword()), userDto.getEmail(), new ArrayList<Animal>(), new ArrayList<Disponibility>(), roles);
 		userRepository.save(user);
 
 		return ResponseEntity.ok(user);
