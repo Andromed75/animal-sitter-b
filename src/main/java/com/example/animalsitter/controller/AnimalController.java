@@ -33,7 +33,7 @@ public class AnimalController {
 	Animalrepository animalRepo;
 	
 	@GetMapping("/findall")
-	@PreAuthorize("hasRole('USER')")
+	@PreAuthorize("hasRole('ROLE_USER')")
 	public ResponseEntity<List<Animal>> getAllAnimals() {
 		return ResponseEntity.ok(animalRepo.findAll());
 	}
