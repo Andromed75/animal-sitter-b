@@ -26,6 +26,8 @@ public class Sitting {
 	@GeneratedValue
 	UUID id;
 	
+	String title;
+	
 	@OneToMany(targetEntity = Animal.class)
 	List<Animal> animals;
 	

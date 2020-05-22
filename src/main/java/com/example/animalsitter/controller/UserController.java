@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.example.animalsitter.domain.Animal;
 import com.example.animalsitter.domain.Disponibility;
 import com.example.animalsitter.domain.Indisponibility;
 import com.example.animalsitter.domain.User;
@@ -25,7 +26,9 @@ import com.example.animalsitter.exception.UserNotFoundException;
 import com.example.animalsitter.repository.DisponibilityRepository;
 import com.example.animalsitter.repository.IndisponibilityRepo;
 import com.example.animalsitter.repository.UserRepository;
+import com.example.animalsitter.service.UserService;
 
+import javassist.tools.reflect.CannotCreateException;
 import lombok.extern.slf4j.Slf4j;
 
 @RestController
@@ -42,14 +45,17 @@ public class UserController {
 
 	@Autowired
 	IndisponibilityRepo indspoRepo;
+	
+	@Autowired
+	UserService userService;
 
-	@PreAuthorize("hasRole('ROLE_USER')")
+//	@PreAuthorize("hasRole('ROLE_USER')")
 	@GetMapping("/{id}")
 	public ResponseEntity<User> getUserById(@PathVariable("id") UUID id) {
 		return ResponseEntity.ok(userRepo.findById(id).get());
 	}
 
-	@PreAuthorize("hasRole('ROLE_ADMIN')")
+//	@PreAuthorize("hasRole('ROLE_ADMIN')")
 	@GetMapping()
 	public ResponseEntity<List<User>> getUsers() {
 		return ResponseEntity.ok(userRepo.findAll());
@@ -100,17 +106,25 @@ public class UserController {
 
 		return ResponseEntity.ok(disponibility);
 	}
+	
+	@PreAuthorize("hasRole('ROLE_USER')")
+	@GetMapping("/my-animals/{id}")
+	ResponseEntity<List<Animal>> getUsersAnimals(@PathVariable("id") UUID id) {
+		log.info("Http handling getUsersAnimals with user id : {}", id);
+		List<Animal> usersAnimals = userService.getUsersAnimals(id);
+		return ResponseEntity.ok(usersAnimals);
+	}
 
+	@PreAuthorize("hasRole('ROLE_USER')")
+	@PostMapping("/my-animals/add")
 	public ResponseEntity<User> addAnimalToUser(@RequestBody AnimalWithUserId dto) {
-		Optional<User> optionalUser = userRepo.findById(dto.getUserId());
-		if (!optionalUser.isPresent()) {
-			log.info("User with id = {} not found", dto.getUserId());
-			throw new UserNotFoundException("User not found");
+		log.info("Http handling addAnimalToUser, userId : {}, animal name : {}", dto.getUserId(), dto.getName());
+		try {
+			return ResponseEntity.ok(userService.addAnimalToUser(dto));
+		} catch (CannotCreateException e) {
+			log.info("Error creating animal : {}", e.getMessage());
 		}
-		User user = null;
-		
-
-		return null;
+		return ResponseEntity.badRequest().build();
 	}
 
 }

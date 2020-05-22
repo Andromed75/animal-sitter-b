@@ -8,6 +8,7 @@ import java.util.UUID;
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 
 import com.example.animalsitter.dto.UserDto;
 
@@ -21,7 +22,16 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class User extends Admin{
 	
+	String firstName;
 	
+	String lastName;
+	
+	int age;
+	
+	String phone;
+	
+	@OneToOne(targetEntity = Address.class, cascade = CascadeType.ALL)
+	Address adress;
 	
 	@OneToMany(targetEntity = Animal.class, cascade = CascadeType.ALL)
 	List<Animal> animals;
@@ -31,10 +41,11 @@ public class User extends Admin{
 	
 
 	
-	public User(UUID id, String pseudo, String password, String email, List<Animal> animals, List<Disponibility> disponibility, Set<Role> roles ) {
+	public User(UUID id, String pseudo, String password, String email, List<Animal> animals, List<Disponibility> disponibility, Set<Role> roles, Address address ) {
 		super(id, pseudo, password, email, roles);
 		this.animals = animals;
 		this.disponibility = disponibility;
+		this.adress = address;
 	}
 	
 }

@@ -23,13 +23,17 @@ public class Address {
 	@GeneratedValue
 	UUID id;
 	
-	String name;
+	String streetNumber;
+	
+	String street;
 	
 	Double latitude;
 	
 	Double longitude;
 	
 	String postalcode;
+	
+	String city;
 	
 	String country;
 	

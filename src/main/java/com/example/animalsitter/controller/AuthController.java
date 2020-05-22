@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.example.animalsitter.domain.Address;
 import com.example.animalsitter.domain.Animal;
 import com.example.animalsitter.domain.Disponibility;
 import com.example.animalsitter.domain.Role;
@@ -112,7 +113,8 @@ public class AuthController {
 		Role userRole = roleRepository.findByName(ERole.ROLE_USER).orElseThrow(() -> new RuntimeException("ERROR ROLE IS NOT FOUND"));
 		Set<Role> roles = new HashSet<>();
 		roles.add(userRole);
-		User user = new User(null, userDto.getPseudo(), encoder.encode(userDto.getPassword()), userDto.getEmail(), new ArrayList<Animal>(), new ArrayList<Disponibility>(), roles);
+		User user = new User(null, userDto.getPseudo(), encoder.encode(userDto.getPassword()), userDto.getEmail(), new ArrayList<Animal>(), new ArrayList<Disponibility>(), roles,
+				new Address());
 		userRepository.save(user);
 
 		return ResponseEntity.ok(user);

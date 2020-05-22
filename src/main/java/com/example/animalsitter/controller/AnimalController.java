@@ -20,44 +20,46 @@ import com.example.animalsitter.domain.Animal;
 import com.example.animalsitter.domain.Sickness;
 import com.example.animalsitter.dto.AnimalDTO;
 import com.example.animalsitter.repository.Animalrepository;
+import com.example.animalsitter.service.AnimalService;
 
 import lombok.extern.slf4j.Slf4j;
 
 @CrossOrigin
 @RestController
 @RequestMapping("api/animal/v1")
-@Slf4j 
-public class AnimalController { 
+@Slf4j
+public class AnimalController {
 
 	@Autowired
 	Animalrepository animalRepo;
-	
+
+	@Autowired
+	AnimalService animalService;
+
 	@GetMapping("/findall")
 	@PreAuthorize("hasRole('ROLE_USER')")
 	public ResponseEntity<List<Animal>> getAllAnimals() {
-		return ResponseEntity.ok(animalRepo.findAll());
+		log.info("Http Handling getAllAnimals");
+		return ResponseEntity.ok(animalService.findAll());
 	}
-	
+
 	@PostMapping("/create")
 	public ResponseEntity<Animal> createAnimal(@RequestBody AnimalDTO animalDTO) {
 		log.info("HTTP Handling createAnimal");
-		Animal animal = Animal.builder().name(animalDTO.getName()).sicknesses(new ArrayList<Sickness>()).build();
-		return ResponseEntity.ok(animalRepo.save(animal));
+		return ResponseEntity.ok(animalService.createAnimal(animalDTO));
 	}
-	
+
 	@GetMapping("/{id}")
 	public ResponseEntity<Animal> getAnimalById(@PathVariable("id") UUID id) {
 		log.info("HTTP Handling : getAnimalById, id={}", id);
-		return ResponseEntity.ok(animalRepo.getOne(id));
+		return ResponseEntity.ok(animalService.getOne(id));
 	}
-	
+
 	@DeleteMapping("/{id}")
 	public ResponseEntity<Void> deleteAnimalById(@PathVariable("id") UUID id) {
 		log.info("HTTP Handling deleteAnimalById, id={}", id);
-		animalRepo.deleteById(id);
+		animalService.deleteAnimal(id);
 		return ResponseEntity.ok().build();
 	}
-	
-	
-	
+
 }

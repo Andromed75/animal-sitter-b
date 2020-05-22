@@ -39,6 +39,7 @@ import com.example.animalsitter.repository.IndisponibilityRepo;
 import com.example.animalsitter.repository.RoleRepository;
 import com.example.animalsitter.repository.UserRepository;
 import com.example.animalsitter.security.jwt.JwtUtils;
+import com.example.animalsitter.service.SittingService;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -73,6 +74,9 @@ public class SittingController {
 
 	@Autowired
 	IndisponibilityRepo indispoRepo;
+	
+	@Autowired
+	SittingService sittingService;
 
 	@PostMapping
 	public void testOffset(@RequestBody DisponibilityDTO dispo) {
@@ -129,58 +133,10 @@ public class SittingController {
 //		dispoRepo.save(d);
 //	}
 
-	@PostMapping("/verify")
-	public List<User> verify(@RequestBody DisponibilityDTO dispo) {
-		boolean x = false;
-		DateTimeFormatter inputFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
-		OffsetDateTime start = LocalDateTime.parse(dispo.getBeggining(), inputFormatter)
-				.atZone(ZoneId.of("Europe/Paris")).plusHours(1).toOffsetDateTime();
-		OffsetDateTime end = LocalDateTime.parse(dispo.getEnd(), inputFormatter).atZone(ZoneId.of("Europe/Paris"))
-				.plusHours(1).toOffsetDateTime();
-		List<User> allUsers = userRepo.findAll();
-		List<User> response = new ArrayList<User>();
-		for (User u : allUsers) {
-			log.info("For user u = {}", u);
-			for (Disponibility d : u.getDisponibility()) {
-				log.info("Dispo d = {}", d);
-				boolean shiftBegCompare = start.compareTo(d.getShiftBeggining()) >= 0;
-				boolean shiftEndCompare = end.compareTo(d.getShiftEnd()) <= 0;
-				log.info("COMPARE beg = {}, end = {}", shiftBegCompare, shiftEndCompare);
-				if (shiftBegCompare && shiftEndCompare) {
-					log.info("PREMIER IF TRUE");
-					if (d.getIndisponibility().isEmpty()) {
-						log.info("INDISPO VIDE");
-						response.add(u);
-					} else {
-						for (Indisponibility i : d.getIndisponibility()) {
-							log.info("start = {}, startIndispo = {}", start, i.getShiftBeggining());
-							log.info("end = {}, endIndispo = {}", end, i.getShiftEnd());
-
-							// TODO : FAIRE UNE METHODE INBETWEEN QUI PREND EN PARAMETRE DEUX DATES POUR LES
-							// COMPARER
-							boolean startNotBetweenIndispo = start.compareTo(i.getShiftBeggining()) >= 0
-									&& start.compareTo(i.getShiftEnd()) <= 0;
-							boolean endNotBetweenIndispo = end.compareTo(i.getShiftBeggining()) >= 0
-									&& end.compareTo(i.getShiftEnd()) <= 0;
-							boolean indispoStartNotBetweenWanted = i.getShiftBeggining().compareTo(start) >= 0
-									&& i.getShiftBeggining().compareTo(end) <= 0;
-							boolean indispoEndNotBetweenWanted = i.getShiftEnd().compareTo(start) >= 0
-									&& i.getShiftEnd().compareTo(end) <= 0;
-							log.info("INDISPO REMPLI beg = {}, end = {}", startNotBetweenIndispo, endNotBetweenIndispo);
-							if (!startNotBetweenIndispo && !endNotBetweenIndispo && !indispoEndNotBetweenWanted
-									&& !indispoStartNotBetweenWanted) {
-								response.add(u);
-							}
-						}
-					}
-
-				}
-			}
-		}
-
-//		allUsers.stream().forEach(u -> u.getDisponibility().stream().filter(d -> (d.getShiftBeggining().compareTo(start) >= 0 && d.getShiftEnd().compareTo(end) <= 0) ).forEach(d -> d.getIndisponibility()
-//				.stream().filter(i -> i.getShiftBeggining().compareTo(start) < 0 && i.getShiftEnd().compareTo(end) > 0).forEach(i -> response.add(u))));
-
+	@PostMapping("/search")
+	public List<User> search(@RequestBody DisponibilityDTO dispo) {
+		log.info("Http Handling Search with param : {}", dispo);
+		List<User> response = sittingService.search(dispo);
 		return response;
 	}
 
