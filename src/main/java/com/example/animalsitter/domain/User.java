@@ -6,20 +6,30 @@ import java.util.Set;
 import java.util.UUID;
 
 import javax.persistence.CascadeType;
+import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
+import javax.validation.constraints.Max;
 
 import com.example.animalsitter.dto.UserDto;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+/**
+ * This is the User entity matching a User's profile, it extends from admin with pseudo password email and role
+ * 
+ * @author ae.de-donno
+ *
+ */
 @Entity
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class User extends Admin{
 	
 	String firstName;
@@ -39,13 +49,30 @@ public class User extends Admin{
 	@OneToMany(targetEntity = Disponibility.class, cascade = CascadeType.ALL)
 	List<Disponibility> disponibility;
 	
+	@ElementCollection(targetClass = Integer.class)
+	List<Integer> rating;
+	
 
 	
-	public User(UUID id, String pseudo, String password, String email, List<Animal> animals, List<Disponibility> disponibility, Set<Role> roles, Address address ) {
+	public User(UUID id, String pseudo, String password, String email, List<Animal> animals, List<Disponibility> disponibility, Set<Role> roles, Address address, List<Integer> rating) {
 		super(id, pseudo, password, email, roles);
 		this.animals = animals;
 		this.disponibility = disponibility;
 		this.adress = address;
+		this.rating = rating;
 	}
 	
+	/**
+	 * @return the average rating of a user
+	 */
+//	public double getUserRating(){
+//		int sum = 0;
+//		if(rating.size() > 0) {
+//			
+//		}
+//		for(Integer rating : rating) {
+//			sum =+ rating;
+//		}
+//		return  sum / rating.size();
+//	}
 }

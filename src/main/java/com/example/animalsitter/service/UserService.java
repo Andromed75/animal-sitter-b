@@ -1,5 +1,6 @@
 package com.example.animalsitter.service;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -10,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import com.example.animalsitter.domain.Animal;
 import com.example.animalsitter.domain.User;
+import com.example.animalsitter.dto.UserInfoFullDto;
 import com.example.animalsitter.dto.request.AnimalWithUserId;
 import com.example.animalsitter.exception.UserNotFoundException;
 import com.example.animalsitter.repository.Animalrepository;
@@ -56,5 +58,43 @@ public class UserService {
 		if(usersAnimals != null && usersAnimals.size() > 2) {
 			throw new CannotCreateException("User already have three animals created");
 		}
+	}
+
+	public User updateUser(UserInfoFullDto uifdto) {
+		Optional<User> userFromBaseOptional = userRepository.findById(uifdto.getId());
+		if(!userFromBaseOptional.isPresent()) {
+			log.info("User with id = {} not found", uifdto.getId());
+			throw new UserNotFoundException("User not found");
+		}
+		User fromBase = userFromBaseOptional.get();
+		if(fromBase.getEmail().equals(uifdto.getEmail())) {
+			// send mail
+		}
+		fromBase.setAge(uifdto.getAge());
+		fromBase.setEmail(uifdto.getEmail());
+		fromBase.setFirstName(uifdto.getFirstName());
+		fromBase.setLastName(uifdto.getLastName());
+		fromBase.setPhone(uifdto.getPhone());
+		// Test voir s'il existe
+		fromBase.setPseudo(uifdto.getPseudo());
+		fromBase.getAdress().setCity(uifdto.getAdress().getCity());
+		fromBase.getAdress().setCountry(uifdto.getAdress().getCountry());
+		fromBase.getAdress().setPostalcode(uifdto.getAdress().getPostalcode());
+		fromBase.getAdress().setStreet(uifdto.getAdress().getStreet());
+		
+		return userRepository.save(fromBase);
+	}
+
+	public boolean checkIfUserHasAnimals(UUID id) {
+		Optional<User> optionalUser = userRepository.findById(id);
+		if(!optionalUser.isPresent()) {
+			throw new UserNotFoundException("User not found");
+		}
+		User user = optionalUser.get();
+		boolean response = false;
+		if(user.getAnimals() != null && user.getAnimals().size() > 0 && !user.getAnimals().isEmpty()) {
+			response = true;
+		}
+		return response;
 	}
 }

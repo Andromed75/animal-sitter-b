@@ -4,13 +4,8 @@ import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.UUID;
-
-import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -26,14 +21,12 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.example.animalsitter.domain.Animal;
 import com.example.animalsitter.domain.Disponibility;
 import com.example.animalsitter.domain.Indisponibility;
-import com.example.animalsitter.domain.Role;
+import com.example.animalsitter.domain.Sitting;
 import com.example.animalsitter.domain.User;
 import com.example.animalsitter.dto.DisponibilityDTO;
-import com.example.animalsitter.dto.UserDto;
-import com.example.animalsitter.enums.ERole;
+import com.example.animalsitter.dto.SittingDto;
 import com.example.animalsitter.repository.DisponibilityRepository;
 import com.example.animalsitter.repository.IndisponibilityRepo;
 import com.example.animalsitter.repository.RoleRepository;
@@ -77,8 +70,15 @@ public class SittingController {
 	
 	@Autowired
 	SittingService sittingService;
-
+	
+	
 	@PostMapping
+	public ResponseEntity<Sitting> createSitting(SittingDto dto) {
+		log.info("Http Handling createSitting, with userId :{}", dto.getUserId());
+		return ResponseEntity.ok(sittingService.createSitting(dto));
+	}
+
+	@PostMapping("/testdatshit")
 	public void testOffset(@RequestBody DisponibilityDTO dispo) {
 		// OffsetDateTime ldt = OffsetDateTime.of(odd.getYear(), odd.getMonth(),
 		// odd.getDayOfMonth(), 0, 0, 0, 0, zos);
@@ -96,9 +96,9 @@ public class SittingController {
 		log.info("Dispo construit = {}", d);
 		dispoRepo.save(d);
 		log.info("Après SAVE = {}", d);
-	}
+	} 
 
-	@GetMapping
+	@GetMapping("/getDispos")
 	public ResponseEntity<List<Disponibility>> getAllDispo() {
 		List<Disponibility> dispo = dispoRepo.findAll();
 		dispo.stream().forEach(x -> {

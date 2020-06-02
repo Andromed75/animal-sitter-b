@@ -1,6 +1,6 @@
 package com.example.animalsitter.controller;
 
-import java.util.ArrayList;
+import java.io.IOException;
 import java.util.List;
 import java.util.UUID;
 
@@ -15,9 +15,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.example.animalsitter.domain.Animal;
-import com.example.animalsitter.domain.Sickness;
 import com.example.animalsitter.dto.AnimalDTO;
 import com.example.animalsitter.repository.Animalrepository;
 import com.example.animalsitter.service.AnimalService;
@@ -46,7 +46,14 @@ public class AnimalController {
 	@PostMapping("/create")
 	public ResponseEntity<Animal> createAnimal(@RequestBody AnimalDTO animalDTO) {
 		log.info("HTTP Handling createAnimal");
-		return ResponseEntity.ok(animalService.createAnimal(animalDTO));
+		log.info("PHOTO : {}", animalDTO.getPhoto());
+		try {
+			return ResponseEntity.ok(animalService.createAnimal(animalDTO, animalDTO.getPhoto()));
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			log.info("Error creating animal : {}", e.getMessage());
+		}
+		return ResponseEntity.badRequest().build();
 	}
 
 	@GetMapping("/{id}")

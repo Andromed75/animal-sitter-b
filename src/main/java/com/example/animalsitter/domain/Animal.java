@@ -1,16 +1,20 @@
 package com.example.animalsitter.domain;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.UUID;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
 import com.example.animalsitter.dto.request.AnimalWithUserId;
 
+import javassist.bytecode.ByteArray;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -44,14 +48,17 @@ public class Animal {
 	
 	String whatDoIEat;
 	
-	@OneToMany(targetEntity = Sickness.class)
+	@OneToOne(targetEntity = Photo.class, cascade = CascadeType.ALL)
+	Photo photo;
+	
+	@OneToMany(targetEntity = Sickness.class, cascade = CascadeType.ALL)
 	List<Sickness> sicknesses;
 //	
 //	List<Allergy> allergies;
 //	
 //	List<Treatment> treatments;
 
-	public static Animal of(AnimalWithUserId dto) {
+	public static Animal of(AnimalWithUserId dto){
 		Animal animal = new Animal();
 		animal.setName(dto.getName());
 		animal.setTatoo(dto.getTatoo());
@@ -61,7 +68,8 @@ public class Animal {
 		animal.setSick(dto.getSick());
 		animal.setWhatDoIEat(dto.getWhatDoIEat());
 		animal.setWhenDoIEat(dto.getWhenDoIEat());
+		Photo photo = Photo.builder().build();
+		animal.setPhoto(photo);
 		return animal;
-		
 	}
 }

@@ -1,5 +1,7 @@
 package com.example.animalsitter.service;
 
+import java.time.Clock;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
@@ -8,14 +10,17 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.hibernate.type.descriptor.java.OffsetDateTimeJavaDescriptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.example.animalsitter.domain.Disponibility;
 import com.example.animalsitter.domain.Indisponibility;
+import com.example.animalsitter.domain.Sitting;
+import com.example.animalsitter.domain.Status;
 import com.example.animalsitter.domain.User;
 import com.example.animalsitter.dto.DisponibilityDTO;
+import com.example.animalsitter.dto.SittingDto;
+import com.example.animalsitter.enums.StatusEnum;
 import com.example.animalsitter.repository.UserRepository;
 
 import lombok.extern.slf4j.Slf4j;
@@ -82,5 +87,24 @@ public class SittingService {
 //		allUsers.stream().forEach(u -> u.getDisponibility().stream().filter(d -> (d.getShiftBeggining().compareTo(start) >= 0 && d.getShiftEnd().compareTo(end) <= 0) ).forEach(d -> d.getIndisponibility()
 //		.stream().filter(i -> i.getShiftBeggining().compareTo(start) < 0 && i.getShiftEnd().compareTo(end) > 0).forEach(i -> response.add(u))));
 		return response;
+	}
+
+	public Sitting createSitting(SittingDto dto) {
+			Sitting sitting = new Sitting();
+			sitting.setAnimals(dto.getAnimals());
+			sitting.setTitle(dto.getTitle());
+			User user = userRepository.findById(dto.getUserId()).get();
+			sitting.setUser(user);
+			Status status = Status.builder().date(LocalDateTime.now(Clock.systemUTC())).status(StatusEnum.STATUS_ONE).build();
+			sitting.setStatus(status);
+			sitting.setCreatedDate(LocalDate.now(Clock.systemUTC()));
+			DateTimeFormatter inputFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+			OffsetDateTime beg = LocalDateTime.parse(dto.getShiftBeggining(), inputFormatter).atZone(ZoneId.of("Europe/Paris")).toOffsetDateTime();
+			OffsetDateTime end = LocalDateTime.parse(dto.getShiftEnd(), inputFormatter).atZone(ZoneId.of("Europe/Paris")).toOffsetDateTime();
+			sitting.setShiftBeggining(beg);
+			sitting.setShiftEnd(end);
+			
+			return sitting;
+		
 	}
 }

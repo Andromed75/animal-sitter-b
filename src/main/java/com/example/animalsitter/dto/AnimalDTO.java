@@ -2,6 +2,8 @@ package com.example.animalsitter.dto;
 
 import java.util.UUID;
 
+import org.springframework.web.multipart.MultipartFile;
+
 import com.example.animalsitter.domain.Animal;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -33,6 +35,8 @@ public class AnimalDTO {
 
 	@JsonProperty(value = "what_do_i_eat")
 	String whatDoIEat;
+	
+	MultipartFile photo;
 	
 	public static AnimalDTO of(Animal animal) {
 		return AnimalDTO.builder()

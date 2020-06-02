@@ -36,6 +36,11 @@ import com.example.animalsitter.repository.RoleRepository;
 import com.example.animalsitter.repository.UserRepository;
 import com.example.animalsitter.security.jwt.JwtUtils;
 import com.example.animalsitter.security.service.UserDetailsImpl;
+import com.example.animalsitter.service.AuthService;
+import com.example.animalsitter.service.MailJetService;
+import com.example.animalsitter.service.UserService;
+import com.mailjet.client.errors.MailjetException;
+import com.mailjet.client.errors.MailjetSocketTimeoutException;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -69,6 +74,12 @@ public class AuthController {
 	@Autowired
 	IndisponibilityRepo indispoRepo;
 	
+	@Autowired
+	MailJetService mjs;
+	
+	@Autowired
+	AuthService authService;
+	
 
 	
 	@PostMapping("/signin")
@@ -101,22 +112,16 @@ public class AuthController {
 		if (userRepository.existsByPseudo(userDto.getPseudo())) {
 			return ResponseEntity
 					.badRequest()
-					.body("Username is already taken!");
+					.body("Ce pseudo est déjà utilisé ! ");
 		}
 
 		if (userRepository.existsByEmail(userDto.getEmail())) {
 			return ResponseEntity
 					.badRequest()
-					.body("Email is already in use !");
+					.body("Cet e-mail est déjà utilisé !");
 		}
 
-		Role userRole = roleRepository.findByName(ERole.ROLE_USER).orElseThrow(() -> new RuntimeException("ERROR ROLE IS NOT FOUND"));
-		Set<Role> roles = new HashSet<>();
-		roles.add(userRole);
-		User user = new User(null, userDto.getPseudo(), encoder.encode(userDto.getPassword()), userDto.getEmail(), new ArrayList<Animal>(), new ArrayList<Disponibility>(), roles,
-				new Address());
-		userRepository.save(user);
-
+		User user = authService.createNewUser(userDto);
 		return ResponseEntity.ok(user);
 	}
 	

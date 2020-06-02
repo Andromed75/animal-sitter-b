@@ -2,7 +2,9 @@ package com.example.animalsitter.dto.request;
 
 import java.util.UUID;
 
-import com.example.animalsitter.domain.Animal;
+import javax.persistence.Lob;
+
+import org.springframework.web.multipart.MultipartFile;
 
 import lombok.Data;
 
@@ -26,5 +28,8 @@ public class AnimalWithUserId {
 	String whenDoIEat;
 
 	String whatDoIEat;
+	
+	@Lob
+	MultipartFile photo;
 
 }

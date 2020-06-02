@@ -8,9 +8,9 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public enum StatusEnum {
 
-	STATUS_ONE("ONE"),
-	STATUS_TWO("TWO"),
-	STATUS_THREE("THREE");
+	STATUS_ONE("VISIBLE"),
+	STATUS_TWO("ACCEPTED"),
+	STATUS_THREE("FINISHED");
 	
 	private String status;
 

@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -20,6 +21,7 @@ import com.example.animalsitter.domain.Animal;
 import com.example.animalsitter.domain.Disponibility;
 import com.example.animalsitter.domain.Indisponibility;
 import com.example.animalsitter.domain.User;
+import com.example.animalsitter.dto.UserInfoFullDto;
 import com.example.animalsitter.dto.request.AnimalWithUserId;
 import com.example.animalsitter.dto.request.StartAnEndWithUserId;
 import com.example.animalsitter.exception.UserNotFoundException;
@@ -45,7 +47,7 @@ public class UserController {
 
 	@Autowired
 	IndisponibilityRepo indspoRepo;
-	
+
 	@Autowired
 	UserService userService;
 
@@ -106,7 +108,7 @@ public class UserController {
 
 		return ResponseEntity.ok(disponibility);
 	}
-	
+
 	@PreAuthorize("hasRole('ROLE_USER')")
 	@GetMapping("/my-animals/{id}")
 	ResponseEntity<List<Animal>> getUsersAnimals(@PathVariable("id") UUID id) {
@@ -116,15 +118,27 @@ public class UserController {
 	}
 
 	@PreAuthorize("hasRole('ROLE_USER')")
-	@PostMapping("/my-animals/add")
+	@PostMapping(path = "/my-animals/add")
 	public ResponseEntity<User> addAnimalToUser(@RequestBody AnimalWithUserId dto) {
-		log.info("Http handling addAnimalToUser, userId : {}, animal name : {}", dto.getUserId(), dto.getName());
+		log.info("Http handling addAnimalToUser, userId : {}, animal name : {}, photo :{}", dto.getUserId(), dto.getName());
 		try {
 			return ResponseEntity.ok(userService.addAnimalToUser(dto));
 		} catch (CannotCreateException e) {
-			log.info("Error creating animal : {}", e.getMessage());
-		}
-		return ResponseEntity.badRequest().build();
+			log.info("Error : {}", e.getMessage());		}
+		return null;
+	}
+	
+	@PreAuthorize("hasRole('ROLE_USER') or hasRole('ROLE_MODERATOR') or hasRole('ROLE_ADMIN')")
+	@PutMapping
+	public ResponseEntity<User> updateUser(@RequestBody UserInfoFullDto uifdto) {
+		log.info("HttpHandling updateUser");
+		User updatedUser = userService.updateUser(uifdto);
+		return ResponseEntity.ok(updatedUser);
+	}
+	
+	@GetMapping("/check-user-animals/{id}")
+	public boolean checkIfUserHasAnimals(@PathVariable("id") UUID id) {
+		return userService.checkIfUserHasAnimals(id);
 	}
 
 }

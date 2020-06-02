@@ -1,13 +1,17 @@
 package com.example.animalsitter.service;
 
+import java.io.IOException;
+import java.sql.Blob;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.example.animalsitter.domain.Animal;
+import com.example.animalsitter.domain.Photo;
 import com.example.animalsitter.domain.Sickness;
 import com.example.animalsitter.dto.AnimalDTO;
 import com.example.animalsitter.repository.Animalrepository;
@@ -15,8 +19,12 @@ import com.example.animalsitter.repository.Animalrepository;
 @Service
 public class AnimalService {
 
-	@Autowired
 	Animalrepository animalRepository;
+	
+	@Autowired
+	public AnimalService(Animalrepository animalRepository) {
+		this.animalRepository = animalRepository;
+	}
 
 	/**
 	 * @return all animals in database
@@ -27,10 +35,24 @@ public class AnimalService {
 
 	/**
 	 * @param animalDTO
+	 * @param multipartFile 
 	 * @return the animal created
+	 * @throws IOException 
 	 */
-	public Animal createAnimal(AnimalDTO animalDTO) {
-		Animal animal = Animal.builder().name(animalDTO.getName()).sicknesses(new ArrayList<Sickness>()).build();
+	public Animal createAnimal(AnimalDTO animalDTO, MultipartFile file) throws IOException {
+		byte[] byteObjects = null;
+		if(file != null) {
+			byteObjects = new byte[file.getBytes().length];
+			int i= 0;
+			for (byte b : file.getBytes()){
+				byteObjects[i++] = b;
+			}			
+		}
+		
+		Photo photo = Photo.builder().photo(byteObjects).build();
+
+		Animal animal = Animal.builder().name(animalDTO.getName()).photo(photo).sicknesses(new ArrayList<Sickness>()).build();
+		
 		return animalRepository.save(animal);
 	}
 	
