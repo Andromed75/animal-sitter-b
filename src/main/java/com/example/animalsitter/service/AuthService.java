@@ -10,9 +10,9 @@ import org.springframework.stereotype.Service;
 
 import com.example.animalsitter.domain.Address;
 import com.example.animalsitter.domain.Animal;
-import com.example.animalsitter.domain.Disponibility;
 import com.example.animalsitter.domain.Role;
 import com.example.animalsitter.domain.User;
+import com.example.animalsitter.domain.Sitting;
 import com.example.animalsitter.dto.UserDto;
 import com.example.animalsitter.enums.ERole;
 import com.example.animalsitter.repository.RoleRepository;
@@ -75,7 +75,7 @@ public class AuthService {
 		Role userRole = roleRepository.findByName(ERole.ROLE_USER).orElseThrow(() -> new RuntimeException("ERROR ROLE IS NOT FOUND"));
 		Set<Role> roles = new HashSet<>();
 		roles.add(userRole);
-		User user = new User(null, userDto.getPseudo(), encoder.encode(userDto.getPassword()), userDto.getEmail(), new ArrayList<Animal>(), new ArrayList<Disponibility>(), roles, new Address(), new ArrayList<Integer>());
+		User user = new User(null, userDto.getPseudo(), encoder.encode(userDto.getPassword()), userDto.getEmail(), new ArrayList<Animal>(), new ArrayList<Sitting>(), roles, new Address(), new ArrayList<Integer>());
 		userRepository.save(user);
 		return user;
 	}

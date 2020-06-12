@@ -8,7 +8,10 @@ import java.util.List;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,6 +22,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.animalsitter.domain.Disponibility;
@@ -27,9 +31,11 @@ import com.example.animalsitter.domain.Sitting;
 import com.example.animalsitter.domain.User;
 import com.example.animalsitter.dto.DisponibilityDTO;
 import com.example.animalsitter.dto.SittingDto;
+import com.example.animalsitter.dto.SittingToShowDto;
 import com.example.animalsitter.repository.DisponibilityRepository;
 import com.example.animalsitter.repository.IndisponibilityRepo;
 import com.example.animalsitter.repository.RoleRepository;
+import com.example.animalsitter.repository.SittingRepository;
 import com.example.animalsitter.repository.UserRepository;
 import com.example.animalsitter.security.jwt.JwtUtils;
 import com.example.animalsitter.service.SittingService;
@@ -71,12 +77,44 @@ public class SittingController {
 	@Autowired
 	SittingService sittingService;
 	
+	@Autowired
+	SittingRepository sittingRepo;
+	
+//	public ResponseEntity<List<SittingToShowDto>> getSittingsForWebApp(@RequestBody SearchSittingDto dto) {
+//		
+//		return ResponseEntity.ok(sittingService.findAllSittingsForWebApp(dto));
+//	}
+	
+	@GetMapping("/{id}")
+	public ResponseEntity<Sitting> getSittingById(@PathVariable("id") UUID id) {
+		return ResponseEntity.ok(sittingService.getById(id));
+	}
+	
 	
 	@PostMapping
 	public ResponseEntity<Sitting> createSitting(SittingDto dto) {
 		log.info("Http Handling createSitting, with userId :{}", dto.getUserId());
 		return ResponseEntity.ok(sittingService.createSitting(dto));
 	}
+	
+	@PreAuthorize("hasRole('ROLE_USER')")
+	@PostMapping("/test")
+	public ResponseEntity<Sitting> createSittingTest(@RequestBody SittingDto dto) {
+		log.info("Http Handling createSitting, with userId :{}, be :{}, end : {}", dto.getUserId(), dto.getShiftBeggining(), dto.getShiftEnd());
+		return ResponseEntity.ok(sittingService.createSitting(dto));
+	}
+	
+	@GetMapping("/postcodetest")
+	public ResponseEntity<List<SittingToShowDto>> testMethode(String postcode) {
+		return ResponseEntity.ok(sittingRepo.findAllByPostcode(postcode));
+	}
+	
+	@GetMapping("/postcodetestpaginated")
+	public ResponseEntity<List<SittingToShowDto>> testMethodePaginated(@RequestParam("postcode")String postcode, @RequestParam("page") int page) {
+		Pageable firstPageWithTwoElements = PageRequest.of(page, 4);
+		return ResponseEntity.ok(sittingRepo.findAllByPostcodePaginated(postcode, firstPageWithTwoElements));
+	}
+	
 
 	@PostMapping("/testdatshit")
 	public void testOffset(@RequestBody DisponibilityDTO dispo) {
@@ -133,24 +171,24 @@ public class SittingController {
 //		dispoRepo.save(d);
 //	}
 
-	@PostMapping("/search")
-	public List<User> search(@RequestBody DisponibilityDTO dispo) {
-		log.info("Http Handling Search with param : {}", dispo);
-		List<User> response = sittingService.search(dispo);
-		return response;
-	}
-
-	
-
-	@PostMapping("/add-dispo/{id}")
-	public void addDisponibilityToUser(@RequestBody DisponibilityDTO dispo, @PathVariable("id") String id) {
-
-		Disponibility d = createDispoFromDto(dispo);
-		User u = userRepo.findById(UUID.fromString(id)).get();
-		u.getDisponibility().add(d);
-		userRepo.save(u);
-		log.info("User u = {}, Dispo d = {}, d set to u", u, d);
-	}
+//	@PostMapping("/search")
+//	public List<User> search(@RequestBody DisponibilityDTO dispo) {
+//		log.info("Http Handling Search with param : {}", dispo);
+//		List<User> response = sittingService.search(dispo);
+//		return response;
+//	}
+//
+//	
+//
+//	@PostMapping("/add-dispo/{id}")
+//	public void addDisponibilityToUser(@RequestBody DisponibilityDTO dispo, @PathVariable("id") String id) {
+//
+//		Disponibility d = createDispoFromDto(dispo);
+//		User u = userRepo.findById(UUID.fromString(id)).get();
+//		u.getDisponibility().add(d);
+//		userRepo.save(u);
+//		log.info("User u = {}, Dispo d = {}, d set to u", u, d);
+//	}
 
 	@Transactional
 	public Disponibility createDispoFromDto(DisponibilityDTO dispo) {

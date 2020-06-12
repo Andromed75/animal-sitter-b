@@ -17,14 +17,13 @@ public class SittingDto {
 
 	String title;
 
-	List<Animal> animals;
+	String description;
+	
+	UUID animalId;
 
 	UUID userId;
 
 	String shiftBeggining;
 
 	String shiftEnd;
-	
-	LocalDate createdDate;
-
 }

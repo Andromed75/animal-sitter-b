@@ -1,6 +1,5 @@
 package com.example.animalsitter.domain;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -10,9 +9,6 @@ import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
-import javax.validation.constraints.Max;
-
-import com.example.animalsitter.dto.UserDto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -46,18 +42,18 @@ public class User extends Admin{
 	@OneToMany(targetEntity = Animal.class, cascade = CascadeType.ALL)
 	List<Animal> animals;
 	
-	@OneToMany(targetEntity = Disponibility.class, cascade = CascadeType.ALL)
-	List<Disponibility> disponibility;
+	@OneToMany(targetEntity = Sitting.class, cascade = CascadeType.ALL)
+	List<Sitting> sittings;
 	
 	@ElementCollection(targetClass = Integer.class)
 	List<Integer> rating;
 	
 
 	
-	public User(UUID id, String pseudo, String password, String email, List<Animal> animals, List<Disponibility> disponibility, Set<Role> roles, Address address, List<Integer> rating) {
+	public User(UUID id, String pseudo, String password, String email, List<Animal> animals, List<Sitting> sittings, Set<Role> roles, Address address, List<Integer> rating) {
 		super(id, pseudo, password, email, roles);
 		this.animals = animals;
-		this.disponibility = disponibility;
+		this.sittings = sittings;
 		this.adress = address;
 		this.rating = rating;
 	}
@@ -65,14 +61,15 @@ public class User extends Admin{
 	/**
 	 * @return the average rating of a user
 	 */
-//	public double getUserRating(){
-//		int sum = 0;
-//		if(rating.size() > 0) {
-//			
-//		}
-//		for(Integer rating : rating) {
-//			sum =+ rating;
-//		}
-//		return  sum / rating.size();
-//	}
+	public double getUserRating(){
+		int sum = 0;
+		double result = 0;
+		if(rating.size() > 0) {
+			for(Integer rating : rating) {
+				sum =+ rating;
+			}
+			result = sum / rating.size();
+		}
+		return  result;
+	}
 }

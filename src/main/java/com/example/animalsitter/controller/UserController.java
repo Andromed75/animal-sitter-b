@@ -70,24 +70,24 @@ public class UserController {
 		return ResponseEntity.ok().build();
 	}
 
-	@PreAuthorize("hasRole('ROLE_USER')")
-	@PostMapping("/add-disponibility")
-	public ResponseEntity<User> addDisponibilityToUser(@RequestBody StartAnEndWithUserId dto) {
-
-		Optional<User> optionalUser = userRepo.findById(dto.getId());
-		if (!optionalUser.isPresent()) {
-			log.info("User with id = {} not found", dto.getId());
-			throw new UserNotFoundException("User not found");
-		}
-		User user = null;
-		Disponibility disponiility = Disponibility.of(dto);
-		dispoRepo.save(disponiility);
-		user = optionalUser.get();
-		user.getDisponibility().add(disponiility);
-		userRepo.save(user);
-
-		return ResponseEntity.ok(user);
-	}
+//	@PreAuthorize("hasRole('ROLE_USER')")
+//	@PostMapping("/add-disponibility")
+//	public ResponseEntity<User> addDisponibilityToUser(@RequestBody StartAnEndWithUserId dto) {
+//
+//		Optional<User> optionalUser = userRepo.findById(dto.getId());
+//		if (!optionalUser.isPresent()) {
+//			log.info("User with id = {} not found", dto.getId());
+//			throw new UserNotFoundException("User not found");
+//		}
+//		User user = null;
+//		Disponibility disponiility = Disponibility.of(dto);
+//		dispoRepo.save(disponiility);
+//		user = optionalUser.get();
+//		user.getDisponibility().add(disponiility);
+//		userRepo.save(user);
+//
+//		return ResponseEntity.ok(user);
+//	}
 
 	@PreAuthorize("hasRole('ROLE_USER')")
 	@PostMapping("/add-indisponibility")
@@ -140,5 +140,11 @@ public class UserController {
 	public boolean checkIfUserHasAnimals(@PathVariable("id") UUID id) {
 		return userService.checkIfUserHasAnimals(id);
 	}
+	
+//	@GetMapping("/isComplete/{id}")
+//	public boolean profilComplete(@PathVariable("id") UUID id) {
+//		boolean isComplete = userService.isProfileComplete(id);
+//		return false;
+//	}
 
 }

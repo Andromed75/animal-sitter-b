@@ -1,7 +1,6 @@
 package com.example.animalsitter.domain;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.UUID;
@@ -10,9 +9,9 @@ import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
+import javax.persistence.ManyToMany;
 import javax.persistence.OneToOne;
+import javax.persistence.Transient;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -32,14 +31,18 @@ public class Sitting {
 	
 	String title;
 	
-	@OneToMany(targetEntity = Animal.class, cascade = CascadeType.ALL)
-	List<Animal> animals;
+	String description;
 	
-	@OneToOne(targetEntity = User.class, cascade = CascadeType.ALL)
-	User user;
+	// UUID animalId;
 	
-	@ManyToOne(targetEntity = Status.class, cascade = CascadeType.ALL)
-	Status status;
+//	@Transient
+	@OneToOne(targetEntity = Animal.class)
+	Animal animal;
+	
+	UUID userId;
+	
+	@ManyToMany(targetEntity = Status.class, cascade = CascadeType.ALL)
+	List<Status> status;
 	
 	OffsetDateTime shiftBeggining;
 
