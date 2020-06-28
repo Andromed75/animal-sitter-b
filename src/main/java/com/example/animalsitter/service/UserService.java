@@ -1,17 +1,22 @@
 package com.example.animalsitter.service;
 
-import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
+import org.springframework.web.client.RestTemplate;
 
 import com.example.animalsitter.controller.UserController;
 import com.example.animalsitter.domain.Animal;
 import com.example.animalsitter.domain.User;
+import com.example.animalsitter.dto.PositionStackApiDto;
+import com.example.animalsitter.dto.PositonStackApiWrapperDto;
 import com.example.animalsitter.dto.UserInfoFullDto;
 import com.example.animalsitter.dto.request.AnimalWithUserId;
 import com.example.animalsitter.exception.UserNotFoundException;
@@ -30,12 +35,25 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 @Slf4j
 public class UserService {
+	
+	@Value("${positionstack.apikey}")
+	private String POSITION_STACK_API_KEY;
+	
+	@Value("${positionstack.baseurl}")
+	private String POSITION_STACK_API_BASE_URL;
 
-	@Autowired
 	UserRepository userRepository;
 
-	@Autowired
 	Animalrepository animalRepository;
+	
+	PhotoService photoService;
+	
+	@Autowired
+	public UserService(UserRepository userRepository, Animalrepository animalRepository, PhotoService photoService) {
+		this.userRepository = userRepository;
+		this.animalRepository = animalRepository;
+		this.photoService = photoService;
+	}
 
 	/**
 	 * Retrives all {@link Animal} from {@link User}
@@ -44,13 +62,22 @@ public class UserService {
 	 * @return
 	 */
 	public List<Animal> getUsersAnimals(UUID id) {
-		Optional<User> user = userRepository.findById(id);
-		List<Animal> userAnimals = new ArrayList<Animal>();
-		if (user.isPresent()) {
-			userAnimals = user.get().getAnimals();
-		}
+		User user = checkIfUserIsPresent(id);
+		return user.getAnimals();
+	}
+	
+	/**
+	 * Decompress bytes for each animal
+	 * 
+	 * @param id
+	 * @return
+	 */
+	public List<Animal> getUsersAnimalsAndDecompressPhotos(UUID id) {
+		List<Animal> userAnimals = getUsersAnimals(id);
+		userAnimals.stream().filter(a -> a.getPhoto() != null && a.getPhoto().getImage() != null).forEach(a -> photoService.decompressBytes(a.getPhoto().getImage()));
 		return userAnimals;
 	}
+	 
 
 	/**
 	 * Creates an {@link Animal} and add it to the list of given {@link User}
@@ -102,8 +129,41 @@ public class UserService {
 		fromBase.getAdress().setCountry(uifdto.getAdress().getCountry());
 		fromBase.getAdress().setPostalcode(uifdto.getAdress().getPostalcode());
 		fromBase.getAdress().setStreet(uifdto.getAdress().getStreet());
+		
+		// Check that either street or city ou postal code are not empty before calling positionstack API
+		if(!StringUtils.isEmpty(uifdto.getAdress().getCity()) && !StringUtils.isEmpty(uifdto.getAdress().getPostalcode()) && !StringUtils.isEmpty(uifdto.getAdress().getStreet())) {
+			setLongitudeAndLatitude(fromBase, uifdto.getAdress().getStreet(), uifdto.getAdress().getCity());
+		}
 
 		return userRepository.save(fromBase);
+	}
+
+	/**
+	 * THis method calls position stack API and set longitude and latitude into user's address
+	 * 
+	 * @param fromBase
+	 * @param address
+	 * @param city
+	 */
+	private void setLongitudeAndLatitude(User fromBase, String address, String city) {
+		RestTemplate rt = new RestTemplate();
+		String url = POSITION_STACK_API_BASE_URL+"?access_key="+POSITION_STACK_API_KEY+
+				"&query="+address+
+				"&region="+city+
+				"&country=FR&limit=5&output=json&fields=results.longitude,results.latitude";
+		ResponseEntity<PositonStackApiWrapperDto> response = rt.getForEntity(url , PositonStackApiWrapperDto.class);
+		
+		// Verify its HTTP response is OK
+		if(HttpStatus.OK.equals(response.getStatusCode())) {
+			Optional<PositionStackApiDto> longitudeAndLatitude = response.getBody().getData().stream().findFirst();
+			if(longitudeAndLatitude.isPresent()) {
+				log.info("HHTP OK RESULT, longitude {}, latitude{}", longitudeAndLatitude.get().getLatitude(), longitudeAndLatitude.get().getLongitude());
+				fromBase.getAdress().setLongitude(longitudeAndLatitude.get().getLongitude());
+				fromBase.getAdress().setLatitude(longitudeAndLatitude.get().getLatitude());
+			}
+		}else {
+			log.info("Error while calling PositionStack API");
+		}
 	}
 
 	/** Check if user has registered some animals
@@ -137,7 +197,7 @@ public class UserService {
 	 * @param id
 	 * @return User from given ID, or throw a {@link UserNotFoundException}
 	 */
-	private User checkIfUserIsPresent(UUID id) {
+	public User checkIfUserIsPresent(UUID id) {
 		Optional<User> optionalUser = userRepository.findById(id);
 		if (!optionalUser.isPresent()) {
 			throw new UserNotFoundException("User not found");

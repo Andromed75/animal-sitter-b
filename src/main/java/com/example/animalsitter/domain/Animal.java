@@ -32,6 +32,8 @@ public class Animal {
 	@GeneratedValue
 	UUID id;
 	
+	String species;
+	
 	String name;
 	
 	String tatoo;

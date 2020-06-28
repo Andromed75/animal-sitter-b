@@ -2,10 +2,10 @@ package com.example.animalsitter.domain;
 
 import java.util.UUID;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
-import javax.persistence.Lob;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -22,8 +22,12 @@ public class Photo {
 	@Id
 	@GeneratedValue
 	UUID id;
+	
+	String name;
+	
+	String type;
 		
-	@Lob
-    private byte[] photo;
+	@Column(name = "image", length = 1000)
+    private byte[] image;
 	
 }

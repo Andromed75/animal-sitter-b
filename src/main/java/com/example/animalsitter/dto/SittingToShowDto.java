@@ -19,6 +19,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class SittingToShowDto {
+	
+	UUID id;
 
 	String title;
 

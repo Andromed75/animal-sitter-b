@@ -8,8 +8,7 @@ import java.util.List;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -24,12 +23,15 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.client.RestTemplate;
 
 import com.example.animalsitter.domain.Disponibility;
 import com.example.animalsitter.domain.Indisponibility;
 import com.example.animalsitter.domain.Sitting;
 import com.example.animalsitter.domain.User;
 import com.example.animalsitter.dto.DisponibilityDTO;
+import com.example.animalsitter.dto.MsPhotoDto;
+import com.example.animalsitter.dto.PositonStackApiWrapperDto;
 import com.example.animalsitter.dto.SittingDto;
 import com.example.animalsitter.dto.SittingToShowDto;
 import com.example.animalsitter.repository.DisponibilityRepository;
@@ -104,15 +106,10 @@ public class SittingController {
 		return ResponseEntity.ok(sittingService.createSitting(dto));
 	}
 	
-	@GetMapping("/postcodetest")
-	public ResponseEntity<List<SittingToShowDto>> testMethode(String postcode) {
-		return ResponseEntity.ok(sittingRepo.findAllByPostcode(postcode));
-	}
-	
-	@GetMapping("/postcodetestpaginated")
-	public ResponseEntity<List<SittingToShowDto>> testMethodePaginated(@RequestParam("postcode")String postcode, @RequestParam("page") int page) {
-		Pageable firstPageWithTwoElements = PageRequest.of(page, 4);
-		return ResponseEntity.ok(sittingRepo.findAllByPostcodePaginated(postcode, firstPageWithTwoElements));
+	@GetMapping("/all")
+	public ResponseEntity<List<SittingToShowDto>> getSittingsForwebApp(@RequestParam("postcode")String postcode, @RequestParam("page") int page) {
+		log.info("Http handling ");
+		return ResponseEntity.ok(sittingService.findAllByPostcodePaginated(postcode, page));
 	}
 	
 
@@ -217,6 +214,37 @@ public class SittingController {
 	@GetMapping("/find-all-users")
 	public ResponseEntity<List<User>> getAllUsers() {
 		return ResponseEntity.ok(userRepo.findAll());
+	}
+	
+	@GetMapping("/phototest")
+	public void testAppelMsPhoto() {
+		RestTemplate rt = new RestTemplate();
+		
+	    String url = "http://localhost:9000/api/v1/photo/get/956599.jpg";
+		log.debug("url to get picking tool {}",url);
+		ResponseEntity<MsPhotoDto> response = rt.getForEntity(url , MsPhotoDto.class);
+		if(HttpStatus.OK.equals(response.getStatusCode())) {
+			MsPhotoDto dto = response.getBody();
+			//pickingApp = (String) getPickingApp.getBody().get("pickingApp");
+			log.info("HHTP OK RESULT, name {}, type {}, id {}", dto.getName(), dto.getType(), dto.getId());
+		}else {
+			log.info("error while calling store default picking app for store {} is {}");
+		}
+	}
+	@GetMapping("/positionstack")
+	public void testAppelPositionStack(@RequestParam("query") String address, @RequestParam("region") String city) {
+		RestTemplate rt = new RestTemplate();
+		
+		String url = "http://api.positionstack.com/v1/forward?access_key=aac75ecebc69346fcfa68a5bbf5394d2&query="+address+"&region="+city+"&country=FR&limit=5&output=json&fields=results.longitude,results.latitude";
+		log.debug("url to get picking tool {}",url);
+		ResponseEntity<PositonStackApiWrapperDto> response = rt.getForEntity(url , PositonStackApiWrapperDto.class);
+		if(HttpStatus.OK.equals(response.getStatusCode())) {
+			PositonStackApiWrapperDto dto = response.getBody();
+			//pickingApp = (String) getPickingApp.getBody().get("pickingApp");
+			log.info("HHTP OK RESULT, name {}, type {}, id {}", dto.getData().stream().findFirst().get().getLatitude());
+		}else {
+			log.info("error while calling store default picking app for store {} is {}");
+		}
 	}
 
 }

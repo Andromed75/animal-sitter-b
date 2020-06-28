@@ -49,7 +49,7 @@ public class AnimalService {
 			}			
 		}
 		
-		Photo photo = Photo.builder().photo(byteObjects).build();
+		Photo photo = Photo.builder().image(byteObjects).build();
 
 		Animal animal = Animal.builder().name(animalDTO.getName()).photo(photo).sicknesses(new ArrayList<Sickness>()).build();
 		

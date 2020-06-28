@@ -6,6 +6,8 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 
 import java.io.IOException;
+import java.util.Optional;
+import java.util.UUID;
 
 import org.junit.Before;
 import org.junit.Rule;
@@ -15,6 +17,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
 import com.example.animalsitter.domain.Animal;
@@ -59,4 +62,16 @@ public class AnimalSItterServiceTest {
 		assertEquals("Name", result.getName());
 	}
 	
+	@Test
+	public void getAnimalById_Test() {
+		// Given
+		Animal animal = Animal.builder().id(UUID.randomUUID()).name("animal").build();
+		Mockito.when(animalRepositoryMock.getOne(animal.getId())).thenReturn(animal);
+		
+		// When
+		Animal expectedAnimal = target.getOne(animal.getId());
+		
+		// Then
+		assertEquals(expectedAnimal, animal);
+	}
 }
