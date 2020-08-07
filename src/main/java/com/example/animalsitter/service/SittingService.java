@@ -7,14 +7,17 @@ import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.TemporalAccessor;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.format.datetime.standard.TemporalAccessorParser;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -51,12 +54,15 @@ public class SittingService {
 	
 	Animalrepository animalRepo;
 	
+	PhotoService photoService;
+	
 	@Autowired
-	public SittingService(UserRepository userRepository, SittingRepository sittingRepo, StatusRepository statusRepo, Animalrepository animalRepo) {
+	public SittingService(UserRepository userRepository, SittingRepository sittingRepo, StatusRepository statusRepo, Animalrepository animalRepo, PhotoService photoService) {
 		this.userRepository = userRepository;
 		this.sittingRepo = sittingRepo;
 		this.statusRepo = statusRepo;
 		this.animalRepo = animalRepo;
+		this.photoService = photoService;
 		
 	}
 	
@@ -134,9 +140,9 @@ public class SittingService {
 			statusList.add(status);
 			sitting.setStatus(statusList);
 			sitting.setCreatedDate(LocalDate.now(Clock.systemUTC()));
-			DateTimeFormatter inputFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
-			OffsetDateTime beg = LocalDateTime.parse(dto.getShiftBeggining(), inputFormatter).atZone(ZoneId.of("Europe/Paris")).toOffsetDateTime();
-			OffsetDateTime end = LocalDateTime.parse(dto.getShiftEnd(), inputFormatter).atZone(ZoneId.of("Europe/Paris")).toOffsetDateTime();
+			DateTimeFormatter inputFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'").withLocale(Locale.FRENCH);
+			LocalDateTime beg = LocalDateTime.parse(dto.getShiftBeggining(), inputFormatter);
+			LocalDateTime end = LocalDateTime.parse(dto.getShiftEnd(), inputFormatter);
 			log.info("BEGGINING : {}, END : {}", beg, end);
 			sitting.setShiftBeggining(beg);
 			sitting.setShiftEnd(end);
@@ -189,6 +195,16 @@ public class SittingService {
 
 	public List<SittingToShowDto> findAllByPostcodePaginated(String postcode, int page) {
 		Pageable pageable = PageRequest.of(page, 4);
-		return sittingRepo.findAllByPostcodePaginated(postcode, pageable);
+		List<SittingToShowDto> sittingList = sittingRepo.findAllByPostcodePaginated(postcode, pageable);
+		return sittingList;
+	}
+	
+	public List<SittingToShowDto> findAllByPostcodePaginatedWithDates(String postcode, int page, String sittingBeg, String sittingEnd) {
+		Pageable pageable = PageRequest.of(page, 4);
+		DateTimeFormatter inputFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'").withLocale(Locale.FRENCH);
+		LocalDateTime beg = LocalDateTime.parse(sittingBeg, inputFormatter);
+		LocalDateTime end = LocalDateTime.parse(sittingEnd, inputFormatter);
+		List<SittingToShowDto> sittingList = sittingRepo.findAllByPostcodePaginatedWithDate(postcode, beg, end, pageable);
+		return sittingList;
 	}
 }

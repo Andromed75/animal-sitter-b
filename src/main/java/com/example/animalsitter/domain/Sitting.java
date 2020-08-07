@@ -1,7 +1,7 @@
 package com.example.animalsitter.domain;
 
 import java.time.LocalDate;
-import java.time.OffsetDateTime;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -11,7 +11,6 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.ManyToMany;
 import javax.persistence.OneToOne;
-import javax.persistence.Transient;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -44,9 +43,9 @@ public class Sitting {
 	@ManyToMany(targetEntity = Status.class, cascade = CascadeType.ALL)
 	List<Status> status;
 	
-	OffsetDateTime shiftBeggining;
+	LocalDateTime shiftBeggining;
 
-	OffsetDateTime shiftEnd;
+	LocalDateTime shiftEnd;
 	
 	LocalDate createdDate;	
 	

@@ -28,9 +28,9 @@ public class SittingToShowDto {
 
 	Animal animal;
 
-	OffsetDateTime shiftBeggining;
+	LocalDateTime shiftBeggining;
 
-	OffsetDateTime shiftEnd;
+	LocalDateTime shiftEnd;
 
 	String firstName;
 
