@@ -157,7 +157,8 @@ public class UserService {
 		if(HttpStatus.OK.equals(response.getStatusCode())) {
 			Optional<PositionStackApiDto> longitudeAndLatitude = response.getBody().getData().stream().findFirst();
 			if(longitudeAndLatitude.isPresent()) {
-				log.info("HHTP OK RESULT, longitude {}, latitude{}", longitudeAndLatitude.get().getLatitude(), longitudeAndLatitude.get().getLongitude());
+				log.info("HHTP OK RESULT, longitude {}, latitude{}", 
+						longitudeAndLatitude.get().getLatitude(), longitudeAndLatitude.get().getLongitude());
 				fromBase.getAdress().setLongitude(longitudeAndLatitude.get().getLongitude());
 				fromBase.getAdress().setLatitude(longitudeAndLatitude.get().getLatitude());
 			}

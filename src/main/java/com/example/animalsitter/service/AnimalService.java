@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.sql.Blob;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,8 +15,15 @@ import com.example.animalsitter.domain.Animal;
 import com.example.animalsitter.domain.Photo;
 import com.example.animalsitter.domain.Sickness;
 import com.example.animalsitter.dto.AnimalDTO;
+import com.example.animalsitter.exception.AnimalNotFoundException;
 import com.example.animalsitter.repository.Animalrepository;
 
+/**
+ * @author ae.de-donno
+ *
+ * Service associated to {@link Animal}}
+ *
+ */
 @Service
 public class AnimalService {
 
@@ -70,5 +78,23 @@ public class AnimalService {
 	 */
 	public void deleteAnimal(UUID id) {
 		animalRepository.deleteById(id);
+	}
+
+	public Animal updateAnimal(Animal fromApp) {
+		Optional<Animal> fromBase = animalRepository.findById(fromApp.getId());
+		if(!fromBase.isPresent()) {
+			throw new AnimalNotFoundException("Animal not found");
+		}
+		Animal updated = fromBase.get();
+		updated.setAge(fromApp.getAge());
+		updated.setEyesColor(fromApp.getEyesColor());
+		updated.setFurColor(fromApp.getFurColor());
+		updated.setName(fromApp.getName());
+		updated.setSick(fromApp.getSick());
+		updated.setSpecies(fromApp.getSpecies());
+		updated.setTatoo(fromApp.getTatoo());
+		updated.setWhatDoIEat(fromApp.getWhatDoIEat());
+		updated.setWhenDoIEat(fromApp.getWhenDoIEat());
+		return animalRepository.save(updated);
 	}
 }

@@ -15,12 +15,26 @@ import com.mailjet.client.resource.Emailv31;
 
 import lombok.extern.slf4j.Slf4j;
 
+/**
+ * @author ae.de-donno
+ * Service that calls MailJet API to send mails to customer
+ */
 @Service
 @Slf4j
 public class MailJetService {
 
 	public static final String SUBJECT_CREATION = "Bienvenue sur Animal Sitter !";
 	
+		/**
+		 * @param user
+		 * @param message
+		 * @param subject
+		 * @throws MailjetException
+		 * @throws MailjetSocketTimeoutException
+		 * 
+		 * Send mail to customer with params
+		 * 
+		 */
 		public void sendMail(User user, String message, String subject) throws MailjetException, MailjetSocketTimeoutException {
 		log.info("sendCreatedAccountMail ");
 		MailjetClient client;
@@ -46,6 +60,10 @@ public class MailJetService {
 		log.info("Mailjet Request data : {}", response.getData());
 	}
 		
+	/**
+	 * @param pseudo
+	 * @return a message for account creation
+	 */
 	public String accountCreationMessage(String pseudo) {
 		return "<div>\r\n" + 
 				"  <h1 style=\"text-align: center; margin-top: 20px;\">BIENVENUE CHEZ ANIMAL SITTER !</h1><br>\r\n" + 

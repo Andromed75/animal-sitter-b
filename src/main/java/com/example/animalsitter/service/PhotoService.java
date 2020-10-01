@@ -23,6 +23,12 @@ import com.example.animalsitter.repository.UserRepository;
 
 import lombok.extern.slf4j.Slf4j;
 
+/**
+ * @author ae.de-donno
+ * 
+ * Handles all photo processes
+ *
+ */
 @Slf4j
 @Service
 public class PhotoService {
@@ -47,6 +53,12 @@ public class PhotoService {
 		User user = optionalUser.get();
 	}
 
+	/**
+	 * @param animalId
+	 * @param file
+	 * 
+	 * Save photo for an animal
+	 */
 	public void saveAnimalPhoto(UUID animalId, MultipartFile file) {
 		Animal animal = getAnimalControlled(animalId);
 		Optional<Photo> optionalPhoto = photoRepo.findById(animal.getPhoto().getId());
@@ -65,9 +77,17 @@ public class PhotoService {
 		photoRepo.save(photo);
 	}
 
+	/**
+	 * @param id
+	 * @return the photo from an animal
+	 */
 	public Photo getAnimalImage(UUID id) {
 		Animal animal = getAnimalControlled(id);
-		Photo photo = new Photo(animal.getPhoto().getId(), animal.getPhoto().getName(), animal.getPhoto().getType(), decompressBytes(animal.getPhoto().getImage()));
+		Photo photo = null;
+		if(null != animal.getPhoto().getImage()) {
+			photo = new Photo(animal.getPhoto().getId(), animal.getPhoto().getName(), animal.getPhoto().getType(), decompressBytes(animal.getPhoto().getImage()));
+		}
+		
 		return photo;
 	}
 
@@ -108,6 +128,11 @@ public class PhotoService {
 		return outputStream.toByteArray();
 	}
 
+	/**
+	 * @param animalId
+	 * @return an Aanimal if it's presents in base
+	 */
+	
 	private Animal getAnimalControlled(UUID animalId) {
 		Optional<Animal> optionalAnimal = animalRepo.findById(animalId);
 		if (!optionalAnimal.isPresent()) {

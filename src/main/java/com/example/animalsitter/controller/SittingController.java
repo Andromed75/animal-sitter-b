@@ -7,9 +7,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -25,10 +24,7 @@ import com.example.animalsitter.dto.MsPhotoDto;
 import com.example.animalsitter.dto.PositonStackApiWrapperDto;
 import com.example.animalsitter.dto.SittingDto;
 import com.example.animalsitter.dto.SittingToShowDto;
-import com.example.animalsitter.repository.RoleRepository;
-import com.example.animalsitter.repository.SittingRepository;
 import com.example.animalsitter.repository.UserRepository;
-import com.example.animalsitter.security.jwt.JwtUtils;
 import com.example.animalsitter.service.SittingService;
 
 import lombok.extern.slf4j.Slf4j;
@@ -38,40 +34,48 @@ import lombok.extern.slf4j.Slf4j;
 @RequestMapping("api/sitting/v1")
 @Slf4j
 public class SittingController {
-	
 
-	@Autowired
-	AuthenticationManager authenticationManager;
-
-	@Autowired
-	UserRepository userRepository;
-
-	@Autowired
-	RoleRepository roleRepository;
-
-	@Autowired
-	PasswordEncoder encoder;
-
-	@Autowired
-	JwtUtils jwtUtils;
-
-	@Autowired
 	UserRepository userRepo;
 	
-	@Autowired
 	SittingService sittingService;
-	
+
 	@Autowired
-	SittingRepository sittingRepo;
+	public SittingController(UserRepository userRepo, SittingService sittingService) {
+		this.userRepo = userRepo;
+		this.sittingService = sittingService;
+	}
 	
-//	public ResponseEntity<List<SittingToShowDto>> getSittingsForWebApp(@RequestBody SearchSittingDto dto) {
-//		
-//		return ResponseEntity.ok(sittingService.findAllSittingsForWebApp(dto));
-//	}
+	/**
+	 * @param postcode
+	 * @param page
+	 * @param beg
+	 * @param end
+	 * @return a paginated list off {@link SittingToShowDto}
+	 */
+	@GetMapping("/search")
+	public ResponseEntity<List<SittingToShowDto>> getSittingsForwebAppWithDates(@RequestParam("postcode")String postcode, @RequestParam("page") int page,
+			@RequestParam("beg") String beg, @RequestParam("end") String end) {
+		log.info("Http handling getSittingsForwebApp");
+		return ResponseEntity.ok(sittingService.findAllByPostcodePaginatedWithDates(postcode, page, beg, end));
+	}
 	
+	@GetMapping("/search-mobile")
+	public ResponseEntity<List<SittingToShowDto>> getSittingsForMobileAppWithDates(@RequestParam("postcode")String postcode,
+			@RequestParam("beg") String beg, @RequestParam("end") String end) {
+		log.info("Http handling getSittingsForwebApp");
+		return ResponseEntity.ok(sittingService.findAllByPostcodeWithDates(postcode, beg, end));
+	}
+	
+	@PreAuthorize("hasRole('ROLE_USER')")
 	@GetMapping("/{id}")
-	public ResponseEntity<Sitting> getSittingById(@PathVariable("id") UUID id) {
+	public ResponseEntity<SittingToShowDto> getSittingById(@PathVariable("id") UUID id) {
 		return ResponseEntity.ok(sittingService.getById(id));
+	}
+	
+	@DeleteMapping("/{id}")
+	public void deleteSitting(@PathVariable("id") UUID id) {
+		log.info("Http Handling deleteSitting : {}", id);
+		sittingService.deleteSitting(id);
 	}
 	
 	
@@ -89,47 +93,11 @@ public class SittingController {
 	}
 	
 	@GetMapping("/all")
-	public ResponseEntity<List<SittingToShowDto>> getSittingsForwebApp(@RequestParam("postcode")String postcode, @RequestParam("page") int page) {
+	public ResponseEntity<List<SittingToShowDto>> getSittingsForwebApp() {
 		log.info("Http handling getSittingsForwebApp");
-		return ResponseEntity.ok(sittingService.findAllByPostcodePaginated(postcode, page));
+		return ResponseEntity.ok(sittingService.findAllByPostcodePaginated("94", 0));
 	}
 	
-	@GetMapping("/search")
-	public ResponseEntity<List<SittingToShowDto>> getSittingsForwebAppWithDates(@RequestParam("postcode")String postcode, @RequestParam("page") int page,
-			@RequestParam("beg") String beg, @RequestParam("end") String end) {
-		log.info("Http handling getSittingsForwebApp");
-		return ResponseEntity.ok(sittingService.findAllByPostcodePaginatedWithDates(postcode, page, beg, end));
-	}
-	
-
-
-
-//	@PostMapping("/indispo")
-//	public void insertInDispo(@RequestBody IndispoDto indispo) {
-//		Disponibility d = dispoRepo.findById(UUID.fromString(indispo.getDispoUUID())).get();
-//		Indisponibility i = Indisponibility.of(indispo);
-//		d.getIndisponibility().add(i);
-//		dispoRepo.save(d);
-//	}
-
-//	@PostMapping("/search")
-//	public List<User> search(@RequestBody DisponibilityDTO dispo) {
-//		log.info("Http Handling Search with param : {}", dispo);
-//		List<User> response = sittingService.search(dispo);
-//		return response;
-//	}
-//
-//	
-//
-//	@PostMapping("/add-dispo/{id}")
-//	public void addDisponibilityToUser(@RequestBody DisponibilityDTO dispo, @PathVariable("id") String id) {
-//
-//		Disponibility d = createDispoFromDto(dispo);
-//		User u = userRepo.findById(UUID.fromString(id)).get();
-//		u.getDisponibility().add(d);
-//		userRepo.save(u);
-//		log.info("User u = {}, Dispo d = {}, d set to u", u, d);
-//	}
 
 	@GetMapping("/find-all-users")
 	public ResponseEntity<List<User>> getAllUsers() {
@@ -163,8 +131,14 @@ public class SittingController {
 			//pickingApp = (String) getPickingApp.getBody().get("pickingApp");
 			log.info("HHTP OK RESULT, name {}, type {}, id {}", dto.getData().stream().findFirst().get().getLatitude());
 		}else {
-			log.info("error while calling store default picking app for store {} is {}");
+			log.info("error while calling store default picking app for store {} is {}"); 
 		}
 	}
 
+	@GetMapping("/user-sittings/{id}")
+	public ResponseEntity<List<Sitting>> getUserSittings(@PathVariable("id") UUID id) {
+		log.info("Http Handling getUserSittings with user id : {}", id);
+		return ResponseEntity.ok(sittingService.getUserSittings(id));
+	}
+	
 }

@@ -14,6 +14,8 @@ public class AnimalWithUserId {
 	UUID userId;
 
 	String name;
+	
+	String species;
 
 	String tatoo;
 

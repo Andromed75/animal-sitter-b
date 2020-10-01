@@ -1,6 +1,5 @@
 package com.example.animalsitter.domain;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.UUID;
 
@@ -11,10 +10,11 @@ import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
+import javax.validation.constraints.Pattern;
 
 import com.example.animalsitter.dto.request.AnimalWithUserId;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
-import javassist.bytecode.ByteArray;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -32,6 +32,7 @@ public class Animal {
 	@GeneratedValue
 	UUID id;
 	
+	@Pattern(regexp="^$|[a-zA-Z ]+$", message="Name must not include special characters.")
 	String species;
 	
 	String name;
@@ -50,6 +51,7 @@ public class Animal {
 	
 	String whatDoIEat;
 	
+	@JsonIgnore
 	@OneToOne(targetEntity = Photo.class, cascade = CascadeType.ALL)
 	Photo photo;
 	
@@ -63,6 +65,7 @@ public class Animal {
 	public static Animal of(AnimalWithUserId dto){
 		Animal animal = new Animal();
 		animal.setName(dto.getName());
+		animal.setSpecies(dto.getSpecies());
 		animal.setTatoo(dto.getTatoo());
 		animal.setAge(dto.getAge());
 		animal.setFurColor(dto.getFurColor());

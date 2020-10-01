@@ -72,10 +72,25 @@ public class AuthService {
 	 * @return a new user saved and created
 	 */
 	public User createUser(UserDto userDto) {
-		Role userRole = roleRepository.findByName(ERole.ROLE_USER).orElseThrow(() -> new RuntimeException("ERROR ROLE IS NOT FOUND"));
+		Role userRole = roleRepository.findByName(ERole.ROLE_USER)
+				.orElseThrow(() -> new RuntimeException("ERROR ROLE IS NOT FOUND"));
 		Set<Role> roles = new HashSet<>();
 		roles.add(userRole);
-		User user = new User(null, userDto.getPseudo(), encoder.encode(userDto.getPassword()), userDto.getEmail(), new ArrayList<Animal>(), new ArrayList<Sitting>(), roles, new Address(), new ArrayList<Integer>());
+		User user = new User(null, userDto.getPseudo(), encoder.encode(userDto.getPassword()),
+				userDto.getEmail(), new ArrayList<Animal>(), new ArrayList<Sitting>(),
+				roles, new Address(), new ArrayList<Integer>());
+		userRepository.save(user);
+		return user;
+	}
+	
+	public User createAdmin(UserDto userDto) {
+		Role userRole = roleRepository.findByName(ERole.ROLE_ADMIN)
+				.orElseThrow(() -> new RuntimeException("ERROR ROLE IS NOT FOUND"));
+		Set<Role> roles = new HashSet<>();
+		roles.add(userRole);
+		User user = new User(null, userDto.getPseudo(), encoder.encode(userDto.getPassword()),
+				userDto.getEmail(), new ArrayList<Animal>(), new ArrayList<Sitting>(),
+				roles, new Address(), new ArrayList<Integer>());
 		userRepository.save(user);
 		return user;
 	}

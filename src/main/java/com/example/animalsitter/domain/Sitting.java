@@ -32,9 +32,6 @@ public class Sitting {
 	
 	String description;
 	
-	// UUID animalId;
-	
-//	@Transient
 	@OneToOne(targetEntity = Animal.class)
 	Animal animal;
 	

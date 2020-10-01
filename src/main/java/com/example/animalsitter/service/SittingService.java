@@ -3,11 +3,7 @@ package com.example.animalsitter.service;
 import java.time.Clock;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.OffsetDateTime;
-import java.time.ZoneId;
-import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
-import java.time.temporal.TemporalAccessor;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -17,22 +13,16 @@ import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.format.datetime.standard.TemporalAccessorParser;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.example.animalsitter.domain.Animal;
-import com.example.animalsitter.domain.Disponibility;
-import com.example.animalsitter.domain.Indisponibility;
 import com.example.animalsitter.domain.Sitting;
 import com.example.animalsitter.domain.Status;
 import com.example.animalsitter.domain.User;
-import com.example.animalsitter.dto.DisponibilityDTO;
-import com.example.animalsitter.dto.SearchSittingDto;
 import com.example.animalsitter.dto.SittingDto;
 import com.example.animalsitter.dto.SittingToShowDto;
 import com.example.animalsitter.enums.StatusEnum;
-import com.example.animalsitter.exception.SittingNotFoundException;
 import com.example.animalsitter.exception.UserNotFoundException;
 import com.example.animalsitter.repository.Animalrepository;
 import com.example.animalsitter.repository.SittingRepository;
@@ -41,6 +31,12 @@ import com.example.animalsitter.repository.UserRepository;
 
 import lombok.extern.slf4j.Slf4j;
 
+/**
+ * @author ae.de-donno
+ *
+ *
+ * Service related to {@link Sitting}}
+ */
 @Service
 @Slf4j
 public class SittingService {
@@ -65,73 +61,24 @@ public class SittingService {
 		this.photoService = photoService;
 		
 	}
-	
-	public static void main(String[] args) {
-		ZoneOffset zos = ZoneOffset.ofHours(1);
-		OffsetDateTime ldt = OffsetDateTime.of(2020, 2, 3, 0, 0, 0, 0, zos);
-		System.out.println(ldt.toString());
-	}
-	
-//	public List<User> search(DisponibilityDTO dispo) {
-//		DateTimeFormatter inputFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
-//		OffsetDateTime start = LocalDateTime.parse(dispo.getBeggining(), inputFormatter)
-//				.atZone(ZoneId.of("Europe/Paris")).plusHours(1).toOffsetDateTime();
-//		OffsetDateTime end = LocalDateTime.parse(dispo.getEnd(), inputFormatter).atZone(ZoneId.of("Europe/Paris"))
-//				.plusHours(1).toOffsetDateTime();
-//		List<User> allUsers = userRepository.findAll();
-//		List<User> response = new ArrayList<User>();
-//		for (User u : allUsers) {
-//			log.info("For user u = {}", u);
-//			for (Sitting s : u.getSittings()) {
-//				log.info("Dispo d = {}", s);
-//				boolean shiftBegCompare = start.compareTo(s.getShiftBeggining()) >= 0;
-//				boolean shiftEndCompare = end.compareTo(s.getShiftEnd()) <= 0;
-//				log.info("COMPARE beg = {}, end = {}", shiftBegCompare, shiftEndCompare);
-//				if (shiftBegCompare && shiftEndCompare) {
-//					log.info("PREMIER IF TRUE");
-//					if (s.getIndisponibility().isEmpty()) {
-//						log.info("INDISPO VIDE");
-//						response.add(u);
-//					} else {
-//						for (Indisponibility i : d.getIndisponibility()) {
-//							log.info("start = {}, startIndispo = {}", start, i.getShiftBeggining());
-//							log.info("end = {}, endIndispo = {}", end, i.getShiftEnd());
-//
-//							// TODO : FAIRE UNE METHODE INBETWEEN QUI PREND EN PARAMETRE DEUX DATES POUR LES
-//							// COMPARER
-//							boolean startNotBetweenIndispo = start.compareTo(i.getShiftBeggining()) >= 0
-//									&& start.compareTo(i.getShiftEnd()) <= 0;
-//							boolean endNotBetweenIndispo = end.compareTo(i.getShiftBeggining()) >= 0
-//									&& end.compareTo(i.getShiftEnd()) <= 0;
-//							boolean indispoStartNotBetweenWanted = i.getShiftBeggining().compareTo(start) >= 0
-//									&& i.getShiftBeggining().compareTo(end) <= 0;
-//							boolean indispoEndNotBetweenWanted = i.getShiftEnd().compareTo(start) >= 0
-//									&& i.getShiftEnd().compareTo(end) <= 0;
-//							log.info("INDISPO REMPLI beg = {}, end = {}", startNotBetweenIndispo, endNotBetweenIndispo);
-//							if (!startNotBetweenIndispo && !endNotBetweenIndispo && !indispoEndNotBetweenWanted
-//									&& !indispoStartNotBetweenWanted) {
-//								response.add(u);
-//							}
-//						}
-//					}
-//
-//				}
-//			}
-//		}
-//		allUsers.stream().forEach(u -> u.getDisponibility().stream().filter(d -> (d.getShiftBeggining().compareTo(start) >= 0 && d.getShiftEnd().compareTo(end) <= 0) ).forEach(d -> d.getIndisponibility()
-//		.stream().filter(i -> i.getShiftBeggining().compareTo(start) < 0 && i.getShiftEnd().compareTo(end) > 0).forEach(i -> response.add(u))));
-//		return response;
-//	}
 
+	/**
+	 * @param dto
+	 * @return
+	 */
 	@Transactional
 	public Sitting createSitting(SittingDto dto) {
+		
 			Sitting sitting = new Sitting();
-//			sitting.setAnimalId(dto.getAnimalId());
+			
+			// Set animal
 			Animal animal = animalRepo.getOne(dto.getAnimalId());
 			sitting.setAnimal(animal);
+			
 			sitting.setTitle(dto.getTitle());
 			sitting.setUserId(dto.getUserId());
 			sitting.setDescription(dto.getDescription());
+			
 			List<Status> statusList = new ArrayList<>();
 			sitting.setStatus(statusList);
 			sittingRepo.save(sitting);
@@ -139,6 +86,8 @@ public class SittingService {
 			statusRepo.save(status);
 			statusList.add(status);
 			sitting.setStatus(statusList);
+			
+			// Manage dates
 			sitting.setCreatedDate(LocalDate.now(Clock.systemUTC()));
 			DateTimeFormatter inputFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'").withLocale(Locale.FRENCH);
 			LocalDateTime beg = LocalDateTime.parse(dto.getShiftBeggining(), inputFormatter);
@@ -146,6 +95,7 @@ public class SittingService {
 			log.info("BEGGINING : {}, END : {}", beg, end);
 			sitting.setShiftBeggining(beg);
 			sitting.setShiftEnd(end);
+			
 			User user = checkIfUserIsPresent(dto.getUserId());
 			sittingRepo.save(sitting);
 			user.getSittings().add(sitting);
@@ -154,12 +104,13 @@ public class SittingService {
 		
 	}
 
-	public Sitting getById(UUID id) {
-		Optional<Sitting> sittingOptional = sittingRepo.findById(id);
-		if(!sittingOptional.isPresent()) {
-			throw new SittingNotFoundException("Sitting not not found");
-		}
-		return sittingOptional.get();
+	/**
+	 * @param id
+	 * @return a {@link SittingToShowDto} with a {@link Sitting} ID
+	 */  
+	public SittingToShowDto getById(UUID id) {
+		SittingToShowDto response = sittingRepo.findSittingById(id);
+		return response;
 	}
 	
 	/** 
@@ -177,28 +128,25 @@ public class SittingService {
 		return user;
 	}
 
-	public List<SittingToShowDto> findAllSittingsForWebApp(SearchSittingDto dto) {
-		
-		List<SittingToShowDto> response = new ArrayList<>();
-		List<User> userList = userRepository.findAll();
-//		List<User> userList = userRepository.findAllByPostcode(dto.getPostcode());
-//		for (User u : userList) {
-//			if(dto.getPostcode().equals(u.getAdress().getPostalcode())) {
-//				for (Sitting s : u.getSittings()) {
-//					
-//				}
-//			}
-//		}
-		
-		return null;
-	}
 
+	/**
+	 * @param postcode
+	 * @param page
+	 * @return
+	 */
 	public List<SittingToShowDto> findAllByPostcodePaginated(String postcode, int page) {
 		Pageable pageable = PageRequest.of(page, 4);
 		List<SittingToShowDto> sittingList = sittingRepo.findAllByPostcodePaginated(postcode, pageable);
 		return sittingList;
 	}
 	
+	/**
+	 * @param postcode
+	 * @param page
+	 * @param sittingBeg
+	 * @param sittingEnd
+	 * @return a List of {@link SittingToShowDto}
+	 */
 	public List<SittingToShowDto> findAllByPostcodePaginatedWithDates(String postcode, int page, String sittingBeg, String sittingEnd) {
 		Pageable pageable = PageRequest.of(page, 4);
 		DateTimeFormatter inputFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'").withLocale(Locale.FRENCH);
@@ -207,4 +155,26 @@ public class SittingService {
 		List<SittingToShowDto> sittingList = sittingRepo.findAllByPostcodePaginatedWithDate(postcode, beg, end, pageable);
 		return sittingList;
 	}
+
+	public List<Sitting> getUserSittings(UUID id) {
+		Optional<User> optionalUser = userRepository.findById(id);
+		if(!optionalUser.isPresent()) {
+			throw new UserNotFoundException("User with id : " + id.toString() + " not found");
+		}
+		List<Sitting> userSittings = optionalUser.get().getSittings();
+		return userSittings;
+	}
+
+	public void deleteSitting(UUID id) {
+		sittingRepo.deleteById(id);
+	}
+
+	public List<SittingToShowDto> findAllByPostcodeWithDates(String postcode, String sittingBeg, String sittingEnd) {
+		DateTimeFormatter inputFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'").withLocale(Locale.FRENCH);
+		LocalDateTime beg = LocalDateTime.parse(sittingBeg, inputFormatter);
+		LocalDateTime end = LocalDateTime.parse(sittingEnd, inputFormatter);
+		List<SittingToShowDto> sittingList = sittingRepo.findAllByPostcodeWithDate(postcode, beg, end);
+		return sittingList;
+	}
+	
 }

@@ -33,12 +33,34 @@ public interface SittingRepository extends JpaRepository<Sitting, UUID> {
 	List<SittingToShowDto> findAllByPostcodePaginated(String postcode, Pageable pageable);
 	
 	@Query("SELECT new com.example.animalsitter.dto.SittingToShowDto(s.id, s.title, s.description, an,"
-			+ " s.shiftBeggining, s.shiftEnd, u.firstName, u.lastName, u.age, u.phone, u.email, a.city, a.street, a.longitude, a.latitude)"
+			+ " s.shiftBeggining, s.shiftEnd, u.firstName,"
+			+ "u.lastName, u.age, u.phone, u.email, a.city, a.street, a.longitude, a.latitude)"
 			+ "FROM Sitting s "
 			+ "INNER JOIN User u ON u.id=s.userId "
 			+ "INNER JOIN Animal an ON an.id=s.animal "
 			+ "INNER JOIN Address a ON u.adress=a.id "
 			+ "WHERE a.postalcode like (?1%) and (?2) <= s.shiftBeggining and (?3) >= s.shiftEnd")
-	List<SittingToShowDto> findAllByPostcodePaginatedWithDate(String postcode,LocalDateTime beg,LocalDateTime end, Pageable pageable);
+	List<SittingToShowDto> findAllByPostcodePaginatedWithDate(
+			String postcode,LocalDateTime beg,LocalDateTime end, Pageable pageable);
+
+	@Query("SELECT new com.example.animalsitter.dto.SittingToShowDto(s.id, s.title, s.description, an,"
+			+ " s.shiftBeggining, s.shiftEnd, u.firstName,"
+			+ "u.lastName, u.age, u.phone, u.email, a.city, a.street, a.longitude, a.latitude)"
+			+ "FROM Sitting s "
+			+ "INNER JOIN User u ON u.id=s.userId "
+			+ "INNER JOIN Animal an ON an.id=s.animal "
+			+ "INNER JOIN Address a ON u.adress=a.id "
+			+ "WHERE s.id = (?1)")
+	SittingToShowDto findSittingById(UUID id);
+
 	
+	@Query("SELECT new com.example.animalsitter.dto.SittingToShowDto(s.id, s.title, s.description, an,"
+			+ " s.shiftBeggining, s.shiftEnd, u.firstName,"
+			+ "u.lastName, u.age, u.phone, u.email, a.city, a.street, a.longitude, a.latitude)"
+			+ "FROM Sitting s "
+			+ "INNER JOIN User u ON u.id=s.userId "
+			+ "INNER JOIN Animal an ON an.id=s.animal "
+			+ "INNER JOIN Address a ON u.adress=a.id "
+			+ "WHERE a.postalcode like (?1%) and (?2) <= s.shiftBeggining and (?3) >= s.shiftEnd")
+	List<SittingToShowDto> findAllByPostcodeWithDate(String postcode, LocalDateTime beg, LocalDateTime end);
 }
